@@ -91,8 +91,8 @@ export interface TranscriptEntry {
 }
 
 export interface QuestionFeedback {
-  question:    string
   topic:       string
+  covered:     boolean   // false when the interview never reached this question
   score:       number
   feedback:    string
   improvement: string
