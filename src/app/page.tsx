@@ -104,29 +104,42 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="px-6 py-16 bg-gray-50 border-y border-gray-100">
+      <section className="px-6 py-16 bg-gray-50 border-y border-gray-100"
+               id="pricing">
         <div className="max-w-3xl mx-auto">
-          <div className="text-center py-8">
-            <p className="text-2xl font-medium text-gray-900 mb-2">
-              Pay per minute
-            </p>
-            <p className="text-3xl font-medium text-brand-500 mb-1">
-              £0.20 <span className="text-lg text-gray-400">/ minute</span>
-            </p>
-            <p className="text-sm text-gray-400 mb-6">
-              10 minutes minimum · 60 minutes maximum ·
-              No subscription · No expiry
-            </p>
-            <div className="flex justify-center gap-6 text-sm text-gray-500 mb-8">
-              <span>10 min = £2.00</span>
-              <span>15 min = £3.00</span>
-              <span>20 min = £4.00</span>
-              <span>30 min = £6.00</span>
-            </div>
-            <Link href="/register" className="btn-primary px-8 py-3 text-base">
-              Start free — first interview on us
-            </Link>
+          <p className="section-tag">Pricing</p>
+          <h2 className="section-heading">
+            Pay per session
+          </h2>
+          <p className="text-sm text-gray-400 mb-8 text-center">
+            Choose your duration. Pay once.
+            No subscription, no expiry.
+          </p>
+          <div className="grid grid-cols-4 gap-4 mb-4">
+            {[
+              { min: 15, price: '£3.00' },
+              { min: 30, price: '£6.00' },
+              { min: 45, price: '£9.00' },
+              { min: 60, price: '£12.00' },
+            ].map((p) => (
+              <div key={p.min}
+                   className="bg-white rounded-xl border border-gray-100 p-5 text-center">
+                <div className="text-sm text-gray-400 mb-1">{p.min} min</div>
+                <div className="text-3xl font-medium text-gray-900 mb-3">
+                  {p.price}
+                </div>
+                <Link href="/register"
+                      className="block py-2 rounded-lg text-sm border border-gray-200
+                                 text-gray-600 hover:bg-gray-50">
+                  Start
+                </Link>
+              </div>
+            ))}
           </div>
+          <p className="text-xs text-gray-400 text-center">
+            £0.20 per minute ·
+            First interview free · No card needed
+          </p>
         </div>
       </section>
 

@@ -42,17 +42,17 @@ export default async function DashboardPage() {
           <div>
             <p className="text-sm font-medium text-gray-900">
               {hasFreeInterview
-                ? 'You have 1 free interview available (15 minutes)'
-                : 'Interviews from £2.00 · Pay per session'}
+                ? 'Your first interview is free'
+                : 'Ready for your next interview?'}
             </p>
             <p className="text-xs text-gray-400 mt-0.5">
               {hasFreeInterview
-                ? 'No card needed for your first interview'
-                : '£0.20 per minute · 10 to 60 minutes'}
+                ? '15 minutes · no card needed'
+                : 'Sessions from £3.00 · 15 minutes'}
             </p>
           </div>
           <Link href="/setup" className="btn-primary flex items-center gap-2">
-            Start interview <ArrowRight className="w-4 h-4" />
+            {hasFreeInterview ? 'Start free interview' : 'Start interview'} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
@@ -66,7 +66,7 @@ export default async function DashboardPage() {
           <div className="card">
             <PoundSterling className="w-5 h-5 text-gray-400 mb-3" />
             <div className="text-sm font-medium text-gray-900 mb-1">Pay per minute</div>
-            <div className="text-xs text-gray-400">£0.20/min · from £2.00</div>
+            <div className="text-xs text-gray-400">£0.20/min · from £3.00</div>
           </div>
           <div className="card opacity-60">
             <BarChart3 className="w-5 h-5 text-gray-400 mb-3" />

@@ -26,13 +26,6 @@ const MOCK_FEEDBACK = {
   ],
 }
 
-const SCORE_DIMS = [
-  { label: 'Technical depth',  key: 'technical_score' },
-  { label: 'Communication',    key: 'communication_score' },
-  { label: 'Examples used',    key: 'examples_score' },
-  { label: 'Structure',        key: 'structure_score' },
-]
-
 function scoreColor(s: number) {
   if (s >= 80) return { bar: 'bg-green-500', text: 'text-green-600', bg: 'bg-green-50' }
   if (s >= 65) return { bar: 'bg-amber-400', text: 'text-amber-600', bg: 'bg-amber-50' }
@@ -44,6 +37,7 @@ export default async function FeedbackPage() {
   if (!session) redirect('/login')
 
   const fb = MOCK_FEEDBACK
+  const score = fb.overall_score
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -64,25 +58,53 @@ export default async function FeedbackPage() {
         <p className="text-sm text-gray-400 mb-8 pl-9">AI Engineer · Mid-level · 14 min 22 sec</p>
 
         {/* Overall score */}
-        <div className="card text-center mb-4">
-          <div className="text-5xl font-medium text-gray-900 mb-1">
-            {fb.overall_score}<span className="text-2xl text-gray-300">/100</span>
-          </div>
-          <p className="text-sm text-gray-400 mb-5">Overall readiness score</p>
-          <div className="space-y-2.5 max-w-xs mx-auto text-left">
-            {SCORE_DIMS.map((d) => {
-              const val = (fb as any)[d.key] as number
-              const c = scoreColor(val)
-              return (
-                <div key={d.key} className="flex items-center gap-3">
-                  <span className="text-xs text-gray-400 w-28 flex-shrink-0">{d.label}</span>
-                  <div className="flex-1 h-1.5 bg-gray-100 rounded-full">
-                    <div className={`h-full rounded-full ${c.bar}`} style={{ width: `${val}%` }} />
+        <div className="card mb-4">
+          <div className="text-center mb-6">
+            <div className="relative w-24 h-24 mx-auto mb-4">
+              <svg width="96" height="96"
+                   viewBox="0 0 96 96"
+                   className="rotate-[-90deg]">
+                <circle cx="48" cy="48" r="40"
+                  fill="none"
+                  stroke="#f3f4f6"
+                  strokeWidth="8"/>
+                <circle cx="48" cy="48" r="40"
+                  fill="none"
+                  stroke="#6366f1"
+                  strokeWidth="8"
+                  strokeDasharray="251.3"
+                  strokeDashoffset={251.3 - (251.3 * score / 100)}
+                  strokeLinecap="round"/>
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-2xl font-medium text-gray-900">
+                  {score}
+                </span>
+                <span className="text-xs text-gray-400">
+                  /100
+                </span>
+              </div>
+            </div>
+            <p className="text-sm text-gray-400 mb-4">Overall readiness score</p>
+
+            <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
+              {[
+                { label: 'Technical',     val: fb.technical_score },
+                { label: 'Communication', val: fb.communication_score },
+                { label: 'Examples',      val: fb.examples_score },
+                { label: 'Structure',     val: fb.structure_score },
+              ].map((d) => (
+                <div key={d.label}
+                     className="bg-white border border-gray-100 rounded-lg p-2 text-center">
+                  <div className={`text-base font-medium ${scoreColor(d.val).text}`}>
+                    {d.val}
                   </div>
-                  <span className={`text-xs font-medium w-6 text-right ${c.text}`}>{val}</span>
+                  <div className="text-xs text-gray-400 leading-tight mt-0.5">
+                    {d.label}
+                  </div>
                 </div>
-              )
-            })}
+              ))}
+            </div>
           </div>
         </div>
 

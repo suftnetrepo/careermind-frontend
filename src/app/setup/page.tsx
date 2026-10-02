@@ -14,6 +14,23 @@ const ROLES = [
   { name: 'Business Analyst',     icon: Users,     cat: 'Business' },
 ]
 
+// Must match REALTIME_VOICES in the backend
+const VOICES = [
+  { id: 'alloy', name: 'Alloy', desc: 'Neutral and balanced' },
+  { id: 'ash',   name: 'Ash',   desc: 'Calm and measured' },
+  { id: 'coral', name: 'Coral', desc: 'Warm and friendly' },
+  { id: 'echo',  name: 'Echo',  desc: 'Clear and steady' },
+  { id: 'marin', name: 'Marin', desc: 'Natural and conversational' },
+  { id: 'cedar', name: 'Cedar', desc: 'Relaxed and confident' },
+]
+
+const DURATIONS = [
+  { min: 15, price: '£3.00',  label: 'Quick practice' },
+  { min: 30, price: '£6.00',  label: 'Standard session' },
+  { min: 45, price: '£9.00',  label: 'Deep dive' },
+  { min: 60, price: '£12.00', label: 'Full interview' },
+]
+
 const LEVELS  = ['Junior', 'Mid-level', 'Senior']
 const FOCUSES = ['Technical', 'Behavioural', 'Mixed']
 
@@ -24,9 +41,9 @@ export default function SetupPage() {
   const [role,     setRole]     = useState('AI Engineer')
   const [level,    setLevel]    = useState('Mid-level')
   const [focus,    setFocus]    = useState('Mixed')
-  const [duration, setDuration] = useState(15)
+  const [duration, setDuration] = useState(30)
   const [jd,       setJd]       = useState('')
-  const amountPounds = (duration * 0.20).toFixed(2)
+  const [voice,    setVoice]    = useState('alloy')
   const [freshFree, setFreshFree] = useState<boolean | null>(null)
   const isFree = (freshFree ?? session?.hasFreeInterview) === true
 
@@ -50,6 +67,7 @@ export default function SetupPage() {
         focus:            focus.toLowerCase(),
         duration_minutes: duration,
         job_description:  jd || undefined,
+        voice,
       })
       // Store in sessionStorage for preview page
       sessionStorage.setItem('cm_interview', JSON.stringify(result))
@@ -134,50 +152,6 @@ export default function SetupPage() {
                 ))}
               </div>
             </div>
-            {isFree ? (
-              <div className="inline-flex items-center gap-1.5 bg-green-50
-                              text-green-700 text-xs px-3 py-1 rounded-full">
-                Using your free interview (15 minutes)
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-400 uppercase tracking-wide">
-                    Duration
-                  </p>
-                  <span className="text-sm font-medium text-gray-900">
-                    {duration} minutes
-                  </span>
-                </div>
-
-                <input
-                  type="range"
-                  min={10}
-                  max={60}
-                  step={5}
-                  value={duration}
-                  onChange={e => setDuration(Number(e.target.value))}
-                  className="w-full accent-brand-500"
-                />
-
-                <div className="flex items-center justify-between text-xs text-gray-400">
-                  <span>10 min</span>
-                  <span>60 min</span>
-                </div>
-
-                <div className="bg-brand-50 border border-brand-100 rounded-lg px-4 py-3
-                                flex items-center justify-between">
-                  <span className="text-sm text-gray-600">You will be charged</span>
-                  <span className="text-lg font-medium text-brand-600">
-                    £{amountPounds}
-                  </span>
-                </div>
-
-                <p className="text-xs text-gray-400 text-center">
-                  £0.20 per minute · Charged once before your interview starts
-                </p>
-              </div>
-            )}
           </div>
         </div>
 
@@ -185,6 +159,74 @@ export default function SetupPage() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-6 h-6 rounded-full bg-gray-900 text-white text-xs font-medium flex items-center justify-center">3</div>
+            <h2 className="text-base font-medium text-gray-900">Duration</h2>
+          </div>
+          {isFree ? (
+            <div className="pl-9">
+              <div className="inline-flex items-center gap-1.5 bg-green-50
+                              text-green-700 text-xs px-3 py-1 rounded-full">
+                Using your free interview (15 minutes)
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm text-gray-400 mb-4 pl-9">£0.20 per minute · Charged once before your interview starts.</p>
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {DURATIONS.map((d) => (
+                  <button
+                    key={d.min}
+                    onClick={() => setDuration(d.min)}
+                    className={`p-4 rounded-xl border-2 text-left transition-all
+                      ${duration === d.min
+                        ? 'border-indigo-500 bg-indigo-50'
+                        : 'border-gray-100 bg-white hover:border-gray-200'}`}
+                  >
+                    <div className={`text-sm font-medium mb-1
+                      ${duration === d.min ? 'text-indigo-600' : 'text-gray-900'}`}>
+                      {d.min} minutes
+                    </div>
+                    <div className={`text-xl font-medium mb-1
+                      ${duration === d.min ? 'text-indigo-600' : 'text-gray-900'}`}>
+                      {d.price}
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      {d.label}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Step 4 */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-6 h-6 rounded-full bg-gray-900 text-white text-xs font-medium flex items-center justify-center">4</div>
+            <h2 className="text-base font-medium text-gray-900">Choose your interviewer's voice</h2>
+          </div>
+          <p className="text-sm text-gray-400 mb-4 pl-9">Alex will speak to you in this voice.</p>
+          <div className="grid grid-cols-3 gap-3">
+            {VOICES.map((v) => (
+              <button key={v.id} onClick={() => setVoice(v.id)}
+                className={`text-left p-4 rounded-xl border transition-all ${voice === v.id
+                  ? 'border-brand-500 border-2 bg-brand-50'
+                  : 'border-gray-100 bg-white hover:border-gray-200'}`}>
+                <div className={`text-sm font-medium mb-1 ${voice === v.id ? 'text-brand-600' : 'text-gray-900'}`}>
+                  {v.name}
+                </div>
+                <div className={`text-xs ${voice === v.id ? 'text-brand-400' : 'text-gray-400'}`}>
+                  {v.desc}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Step 5 */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-6 h-6 rounded-full bg-gray-900 text-white text-xs font-medium flex items-center justify-center">5</div>
             <h2 className="text-base font-medium text-gray-900">Or paste a job description</h2>
           </div>
           <p className="text-sm text-gray-400 mb-3 pl-9">CareerMind will tailor every question to the exact role.</p>
@@ -203,7 +245,9 @@ export default function SetupPage() {
           {loading ? (
             <><Loader2 className="w-4 h-4 animate-spin" />Generating interview...</>
           ) : (
-            <>Generate interview <ArrowRight className="w-4 h-4" /></>
+            isFree
+              ? <>Generate free interview <ArrowRight className="w-4 h-4" /></>
+              : <>Generate interview — {DURATIONS.find(d => d.min === duration)?.price} <ArrowRight className="w-4 h-4" /></>
           )}
         </button>
       </main>

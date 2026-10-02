@@ -14,20 +14,77 @@
 }
 
 @layer components {
-  .btn-primary {
-    @apply bg-gray-900 text-white px-4 py-2.5 rounded-lg text-sm font-medium
-           hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  .card {
+    background: white;
+    border: 0.5px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px 20px;
   }
+  .btn-primary {
+    background: #111827;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 150ms;
+  }
+  .btn-primary:hover { background: #1f2937; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
   .btn-secondary {
-    @apply bg-white text-gray-700 border border-gray-200 px-4 py-2.5 rounded-lg
-           text-sm font-medium hover:bg-gray-50 transition-colors;
+    background: transparent;
+    color: #374151;
+    border: 0.5px solid #d1d5db;
+    border-radius: 8px;
+    padding: 11px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 150ms;
+  }
+  .btn-secondary:hover { background: #f9fafb; }
+  .pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 0.5px solid #d1d5db;
+    background: white;
+    color: #6b7280;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .pill.selected {
+    background: #eff6ff;
+    border-color: #6366f1;
+    color: #4f46e5;
+  }
+  .section-tag {
+    font-size: 11px;
+    color: #6366f1;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 6px;
+  }
+  .section-heading {
+    font-size: 20px;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 20px;
+  }
+  .orb-pulse::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1.5px solid #6366f1;
+    animation: pulse-ring 1.5s ease-out infinite;
   }
   .btn-brand {
     @apply bg-brand-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium
            hover:bg-brand-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-  .card {
-    @apply bg-white border border-gray-100 rounded-xl p-5;
   }
   .input {
     @apply w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm
@@ -36,5 +93,16 @@
   }
   .label {
     @apply block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.18);
+    opacity: 0;
   }
 }

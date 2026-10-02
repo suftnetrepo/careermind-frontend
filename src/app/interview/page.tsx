@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { Mic, Clock, PhoneOff, Wifi, WifiOff, AlertCircle, Loader2 } from 'lucide-react'
+import { Mic, Clock, PhoneOff, WifiOff, AlertCircle, Loader2 } from 'lucide-react'
 import { api } from '@/lib/api'
 import type { CoachingNote } from '@/types'
 
@@ -26,22 +26,22 @@ const MIN_COACHING_WORDS       = 5
 
 const TAG_STYLES = {
   positive: {
-    dot:  'bg-green-500',
-    bg:   'bg-green-50',
-    text: 'text-green-700',
-    label: 'Positive',
+    dot:       'bg-green-500',
+    labelText: 'text-green-600',
+    pill:      'bg-green-50 text-green-700',
+    label:     'Positive',
   },
   tip: {
-    dot:  'bg-amber-400',
-    bg:   'bg-amber-50',
-    text: 'text-amber-700',
-    label: 'Tip',
+    dot:       'bg-amber-400',
+    labelText: 'text-amber-600',
+    pill:      'bg-amber-50 text-amber-700',
+    label:     'Tip',
   },
   pitfall: {
-    dot:  'bg-red-400',
-    bg:   'bg-red-50',
-    text: 'text-red-600',
-    label: 'Pitfall',
+    dot:       'bg-red-400',
+    labelText: 'text-red-500',
+    pill:      'bg-red-50 text-red-600',
+    label:     'Pitfall',
   },
 }
 
@@ -438,17 +438,13 @@ export default function InterviewPage() {
       <header className="border-b border-gray-100 px-6 py-3 flex items-center
                          justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-gray-900">
-            {interview.role}
-          </span>
-          <span className="text-xs text-gray-300">·</span>
-          <span className="text-xs text-gray-400 capitalize">
-            {interview.level}
+          <span className="text-xs font-medium text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
+            {interview.role} · <span className="capitalize">{interview.level}</span>
           </span>
           {/* Connection indicator */}
-          <div className="flex items-center gap-1.5 ml-2">
+          <div className="flex items-center gap-1.5">
             {connStatus === 'connected' ? (
-              <><Wifi className="w-3.5 h-3.5 text-green-500" />
+              <><div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                 <span className="text-xs text-green-600">Live</span></>
             ) : connStatus === 'connecting' ? (
               <><div className="w-3.5 h-3.5 border-2 border-gray-200
@@ -479,19 +475,15 @@ export default function InterviewPage() {
 
           {/* Alex orb + status */}
           <div className="flex flex-col items-center pt-6 pb-4 flex-shrink-0">
-            <div className={`relative w-20 h-20 rounded-full border-2
+            <div className={`relative w-16 h-16 rounded-full border-2
                             flex items-center justify-center mb-3 transition-all
               ${turnStatus === 'alex_speaking'
-                ? 'border-brand-500 bg-brand-50 shadow-lg shadow-brand-100'
+                ? 'border-indigo-500 bg-indigo-50 orb-pulse'
                 : turnStatus === 'user_speaking'
                 ? 'border-green-400 bg-green-50'
                 : 'border-gray-200 bg-gray-50'}`}>
-              {/* Pulse ring when Alex is speaking */}
-              {turnStatus === 'alex_speaking' && (
-                <div className="absolute inset-0 rounded-full border-2
-                               border-brand-300 animate-ping opacity-40" />
-              )}
-              <div className="text-2xl font-medium text-gray-600">A</div>
+              <div className={`text-xl font-medium
+                ${turnStatus === 'alex_speaking' ? 'text-indigo-600' : 'text-gray-600'}`}>A</div>
             </div>
             <p className="text-xs text-gray-400 h-4">
               {connStatus === 'connected' && turnStatus === 'alex_speaking' && 'Alex is speaking...'}
@@ -512,11 +504,11 @@ export default function InterviewPage() {
               <div key={i}
                    className={`flex ${line.role === 'alex'
                      ? 'justify-start' : 'justify-end'}`}>
-                <div className={`max-w-xs rounded-2xl px-4 py-2.5 text-sm
+                <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-[13px]
                                 leading-relaxed
                   ${line.role === 'alex'
                     ? 'bg-gray-100 text-gray-800 rounded-tl-sm'
-                    : 'bg-brand-500 text-white rounded-tr-sm'}`}>
+                    : 'bg-indigo-500 text-white rounded-tr-sm'}`}>
                   {line.text}
                 </div>
               </div>
@@ -524,8 +516,8 @@ export default function InterviewPage() {
             {/* Live alex text (streaming) */}
             {alexText && (
               <div className="flex justify-start">
-                <div className="max-w-xs bg-gray-100 text-gray-800 rounded-2xl
-                               rounded-tl-sm px-4 py-2.5 text-sm leading-relaxed
+                <div className="max-w-[80%] bg-gray-100 text-gray-800 rounded-2xl
+                               rounded-tl-sm px-4 py-2.5 text-[13px] leading-relaxed
                                opacity-70">
                   {alexText}
                   <span className="inline-block w-1 h-3 bg-gray-400
@@ -596,12 +588,12 @@ export default function InterviewPage() {
                 return (
                   <div key={note.id}
                        className="bg-white border border-gray-100
-                                  rounded-xl p-3.5">
+                                  rounded-xl p-3">
                     {/* Tag */}
                     <div className="flex items-center gap-1.5 mb-2">
                       <div className={`w-1.5 h-1.5 rounded-full
                                       ${style.dot}`} />
-                      <span className={`text-xs font-medium ${style.text}`}>
+                      <span className={`text-xs font-medium ${style.labelText}`}>
                         {style.label}
                       </span>
                     </div>
@@ -612,13 +604,13 @@ export default function InterviewPage() {
                     </p>
                     {/* Coaching note */}
                     <p className={`text-xs leading-relaxed rounded-lg
-                                  px-3 py-2 ${style.bg} ${style.text}`}>
+                                  px-3 py-2 ${style.pill}`}>
                       {note.coaching}
                     </p>
                     {/* Try instead */}
                     {note.try_instead && (
                       <div className="mt-2">
-                        <p className="text-xs text-brand-500 mb-1">
+                        <p className="text-xs text-indigo-500 mb-1">
                           Try instead:
                         </p>
                         <p className="text-xs text-gray-500 italic

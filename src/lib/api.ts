@@ -47,7 +47,7 @@ export const api = {
   interviews: {
     setup: (token: string, data: {
       role: string; level: string; focus: string;
-      duration_minutes?: number; job_description?: string
+      duration_minutes?: number; job_description?: string; voice?: string
     }) =>
       request('/api/v1/interviews/setup', {
         method: 'POST', token, body: JSON.stringify(data)

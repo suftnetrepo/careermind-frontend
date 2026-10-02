@@ -18,6 +18,7 @@ export interface InterviewSession {
   focus:            Focus
   duration_minutes: number
   job_description?: string
+  voice:            string
   questions:        Question[]
   status:           InterviewStatus
   paid:                  boolean

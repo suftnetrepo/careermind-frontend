@@ -28,7 +28,7 @@ export default function PreviewPage() {
 
   const topics = interview?.questions?.map((q: any) => q.topic) ?? []
 
-  const amountPounds = ((interview?.amount_pence ?? 0) / 100).toFixed(2)
+  const price = ((interview?.duration_minutes ?? 0) * 0.20).toFixed(2)
 
   async function handleStart() {
     if (!session?.accessToken || !interview?.interview_id) return
@@ -128,7 +128,7 @@ export default function PreviewPage() {
             <><Loader2 className="w-4 h-4 animate-spin" />{interview.is_free ? 'Starting...' : 'Redirecting to payment...'}</>
           ) : (
             <><Mic className="w-4 h-4" />
-              {interview.is_free ? 'Start free interview →' : `Pay £${amountPounds} and start →`}
+              {interview.is_free ? 'Start free interview →' : `Pay £${price} and start →`}
             </>
           )}
         </button>
