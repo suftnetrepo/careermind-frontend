@@ -61,6 +61,14 @@ export default function QuizTab({ questions }: Props) {
 
   if (finished) {
     const pct = Math.round(score / questions.length * 100)
+    const topicScores = questions.reduce<Record<string, { correct: number; total: number }>>(
+      (acc, q, i) => {
+        const attempt = attempts.find(a => a.questionIndex === i)
+        acc[q.topic] ??= { correct: 0, total: 0 }
+        acc[q.topic].total++
+        if (attempt?.correct) acc[q.topic].correct++
+        return acc
+      }, {})
     const color = pct >= 80
       ? 'text-green-600'
       : pct >= 60
@@ -82,6 +90,29 @@ export default function QuizTab({ questions }: Props) {
               ? 'Good foundation — review the topics you missed.'
               : 'Keep studying — use the flashcards to reinforce the concepts.'}
         </p>
+
+        <div className="mb-8 max-w-lg mx-auto text-left">
+          <p className="text-sm font-medium text-gray-900 mb-3">By topic</p>
+          {Object.entries(topicScores).map(([topic, scores]) => {
+            const tPct = Math.round(scores.correct / scores.total * 100)
+            return (
+              <div key={topic} className="mb-2">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-gray-600">{topic}</span>
+                  <span className={tPct >= 80 ? 'text-green-600' : tPct >= 60 ? 'text-amber-500' : 'text-red-500'}>
+                    {scores.correct}/{scores.total}
+                  </span>
+                </div>
+                <div className="h-1.5 bg-gray-100 rounded-full">
+                  <div
+                    className={`h-full rounded-full ${tPct >= 80 ? 'bg-green-500' : tPct >= 60 ? 'bg-amber-400' : 'bg-red-400'}`}
+                    style={{ width: `${tPct}%` }}
+                  />
+                </div>
+              </div>
+            )
+          })}
+        </div>
 
         <div className="space-y-3 text-left mb-8 max-w-lg mx-auto">
           {attempts.map((a, i) => (
@@ -120,6 +151,9 @@ export default function QuizTab({ questions }: Props) {
       </div>
 
       {/* Question */}
+      <p className="text-xs text-indigo-500 uppercase tracking-wide mb-2">
+        {q.topic}
+      </p>
       <div className="card mb-4">
         <div className="flex items-center gap-2 mb-3">
           <span className={`text-xs px-2 py-0.5 rounded-full ${DIFFICULTY_COLORS[q.difficulty]}`}>

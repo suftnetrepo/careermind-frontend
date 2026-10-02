@@ -52,6 +52,8 @@ export default async function FeedbackPage({
         transcript={(interview?.transcript as any[]) || []}
         role={interview?.role || ''}
         level={interview?.level || ''}
+        createdAt={interview?.created_at ?? null}
+        durationSeconds={interview?.duration_seconds ?? null}
       >
         <div className="flex items-center gap-3 mb-2">
           <div className="w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center">

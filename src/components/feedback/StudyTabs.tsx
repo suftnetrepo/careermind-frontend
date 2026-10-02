@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { ArrowRight, Download } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import DownloadTranscriptButton from '@/components/feedback/DownloadTranscriptButton'
 import QuizTab from '@/components/interview/QuizTab'
 import FlashcardTab from '@/components/interview/FlashcardTab'
@@ -19,10 +19,12 @@ interface Props {
   transcript:       { role: 'alex' | 'user'; text: string }[]
   role:             string
   level:            string
+  createdAt:        string | null
+  durationSeconds:  number | null
 }
 
 export default function StudyTabs({
-  interviewId, initialMaterials, children, transcript, role, level,
+  interviewId, initialMaterials, children, transcript, role, level, createdAt, durationSeconds,
 }: Props) {
   const { data: session } = useSession()
   const [activeTab, setActiveTab] = useState<Tab>('feedback')
@@ -129,10 +131,14 @@ export default function StudyTabs({
             <Link href="/setup" className="btn-primary flex-1 py-3 flex items-center justify-center gap-2">
               Practice again <ArrowRight className="w-4 h-4" />
             </Link>
-            <DownloadTranscriptButton transcript={transcript} role={role} level={level} />
-            <button className="btn-secondary flex items-center gap-2 px-4">
-              <Download className="w-4 h-4" /> Report
-            </button>
+            <DownloadTranscriptButton
+              interviewId={interviewId}
+              transcript={transcript}
+              role={role}
+              level={level}
+              createdAt={createdAt}
+              durationSeconds={durationSeconds}
+            />
           </div>
         </main>
       )}
