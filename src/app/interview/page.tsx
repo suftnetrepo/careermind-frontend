@@ -59,29 +59,77 @@ const TAG_STYLES = {
   },
 }
 
-// Render ```fenced``` code inside a transcript line as a code block
+const CODE_PRE_CLASS = `bg-gray-900 text-green-400 rounded-lg p-3 mt-2 mb-2
+                        text-xs font-mono overflow-x-auto whitespace-pre-wrap`
+
+// Alex is told to wrap spoken code in these phrases (see build_interviewer_prompt).
+// Transcripts usually arrive as one paragraph, so these markers are the reliable signal.
+const SPOKEN_CODE_RE = /(here is the code:?)([\s\S]*?)(end of code\.?|$)/gi
+
+// For transcripts that do contain line breaks: lines that look like spoken code
+const CODE_LINE_RE = /^\s*(def|function|class|const|let|var|import|return|if|for|while)\s|[:{]\s*$|^\s{2,}\S/
+const MIN_CODE_LINES = 3
+
+const CODING_QUESTION_RE = /\b(write|code|implement|function|algorithm|script|program)\b/i
+
+function isCodingQuestion(text: string) {
+  return CODING_QUESTION_RE.test(text)
+}
+
+// Wrap runs of 3+ consecutive code-like lines in a code block
+function renderCodeLines(text: string, keyBase: number): React.ReactNode[] {
+  const lines = text.split('\n')
+  const parts: React.ReactNode[] = []
+  let prose: string[] = []
+  let i = 0
+  const flushProse = () => {
+    if (prose.length) parts.push(<span key={`${keyBase}-p${i}`}>{prose.join('\n')}</span>)
+    prose = []
+  }
+  while (i < lines.length) {
+    let j = i
+    while (j < lines.length && CODE_LINE_RE.test(lines[j])) j++
+    if (j - i >= MIN_CODE_LINES) {
+      flushProse()
+      parts.push(
+        <pre key={`${keyBase}-c${i}`} className={CODE_PRE_CLASS}>
+          <code>{lines.slice(i, j).join('\n')}</code>
+        </pre>
+      )
+      i = j
+    } else {
+      prose.push(lines[i])
+      i++
+    }
+  }
+  flushProse()
+  return parts
+}
+
+// Highlight code in a transcript line — from Alex's spoken markers, or from
+// multi-line code-like text
 function renderMessage(text: string) {
-  const codeBlockRegex = /```(\w+)?\n?([\s\S]*?)```/g
   const parts: React.ReactNode[] = []
   let last = 0
   let match
 
-  while ((match = codeBlockRegex.exec(text)) !== null) {
-    if (match.index > last) {
-      parts.push(<span key={last}>{text.slice(last, match.index)}</span>)
+  SPOKEN_CODE_RE.lastIndex = 0
+  while ((match = SPOKEN_CODE_RE.exec(text)) !== null) {
+    const [whole, intro, code, outro] = match
+    if (!code.trim()) {
+      if (whole.length === 0) SPOKEN_CODE_RE.lastIndex++   // avoid looping on an empty match
+      continue
     }
+    parts.push(...renderCodeLines(text.slice(last, match.index) + intro, last))
     parts.push(
-      <pre key={match.index}
-           className="bg-gray-900 text-green-400 rounded-lg p-3 mt-2 mb-2
-                      text-xs font-mono overflow-x-auto whitespace-pre-wrap">
-        <code>{match[2].trim()}</code>
+      <pre key={`code-${match.index}`} className={CODE_PRE_CLASS}>
+        <code>{code.trim()}</code>
       </pre>
     )
-    last = match.index + match[0].length
+    if (outro) parts.push(<span key={`outro-${match.index}`}>{outro}</span>)
+    last = match.index + whole.length
   }
-  if (last < text.length) {
-    parts.push(<span key={last}>{text.slice(last)}</span>)
-  }
+  parts.push(...renderCodeLines(text.slice(last), last))
   return parts.length > 0 ? parts : text
 }
 
@@ -596,6 +644,12 @@ export default function InterviewPage() {
                   {line.text
                     ? renderMessage(line.text)
                     : <span className="opacity-70 animate-pulse">…</span>}
+                  {line.role === 'alex' && isCodingQuestion(line.text) && (
+                    <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5
+                                     rounded-full ml-2">
+                      Coding question
+                    </span>
+                  )}
                 </div>
               </div>
             ))}
