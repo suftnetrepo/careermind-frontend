@@ -108,7 +108,7 @@ export default function LandingPage() {
                id="pricing">
         <div className="max-w-3xl mx-auto">
           <p className="section-tag">Pricing</p>
-          <h2 className="section-heading">
+          <h2 className="section-heading text-center">
             Pay per session
           </h2>
           <p className="text-sm text-gray-400 mb-8 text-center">
