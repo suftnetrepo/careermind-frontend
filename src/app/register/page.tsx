@@ -49,7 +49,7 @@ export default function RegisterPage() {
 
         <div className="card">
           <div className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 text-xs px-3 py-1 rounded-full mb-4">
-            1 free session on signup
+            1 free interview on signup
           </div>
           <h1 className="text-lg font-medium text-gray-900 mb-6">Create your account</h1>
 

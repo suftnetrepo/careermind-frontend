@@ -28,12 +28,22 @@ export default function PreviewPage() {
 
   const topics = interview?.questions?.map((q: any) => q.topic) ?? []
 
+  const amountPounds = ((interview?.amount_pence ?? 0) / 100).toFixed(2)
+
   async function handleStart() {
     if (!session?.accessToken || !interview?.interview_id) return
     setLoading(true)
     try {
-      await api.interviews.start(session.accessToken, interview.interview_id)
-      router.push(`/interview?id=${interview.interview_id}`)
+      if (interview.is_free) {
+        await api.interviews.start(session.accessToken, interview.interview_id)
+        router.push(`/interview?id=${interview.interview_id}`)
+      } else {
+        const { checkout_url } = await api.sessions.checkout(session.accessToken, {
+          interview_id:     interview.interview_id,
+          duration_minutes: interview.duration_minutes,
+        })
+        window.location.href = checkout_url
+      }
     } catch (err: any) {
       alert(err.message)
       setLoading(false)
@@ -54,6 +64,12 @@ export default function PreviewPage() {
       </header>
 
       <main className="max-w-xl mx-auto px-6 py-10">
+        {interview.is_free && (
+          <div className="inline-flex items-center gap-1.5 bg-green-50
+                          text-green-700 text-xs px-3 py-1 rounded-full mb-4">
+            Using your free interview (15 minutes)
+          </div>
+        )}
         <div className="flex items-center gap-3 mb-2">
           <div className="w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center">
             <CheckCircle className="w-4 h-4" />
@@ -109,9 +125,11 @@ export default function PreviewPage() {
         <button onClick={handleStart} disabled={loading}
           className="btn-primary w-full py-3 flex items-center justify-center gap-2 text-base">
           {loading ? (
-            <><Loader2 className="w-4 h-4 animate-spin" />Starting...</>
+            <><Loader2 className="w-4 h-4 animate-spin" />{interview.is_free ? 'Starting...' : 'Redirecting to payment...'}</>
           ) : (
-            <><Mic className="w-4 h-4" />Start interview</>
+            <><Mic className="w-4 h-4" />
+              {interview.is_free ? 'Start free interview →' : `Pay £${amountPounds} and start →`}
+            </>
           )}
         </button>
       </main>

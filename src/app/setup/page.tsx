@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { api } from '@/lib/api'
@@ -16,7 +16,6 @@ const ROLES = [
 
 const LEVELS  = ['Junior', 'Mid-level', 'Senior']
 const FOCUSES = ['Technical', 'Behavioural', 'Mixed']
-const DURATIONS = [10, 15, 20]
 
 export default function SetupPage() {
   const { data: session } = useSession()
@@ -27,6 +26,17 @@ export default function SetupPage() {
   const [focus,    setFocus]    = useState('Mixed')
   const [duration, setDuration] = useState(15)
   const [jd,       setJd]       = useState('')
+  const amountPounds = (duration * 0.20).toFixed(2)
+  const [freshFree, setFreshFree] = useState<boolean | null>(null)
+  const isFree = (freshFree ?? session?.hasFreeInterview) === true
+
+  // The login session goes stale once the free interview is used — ask the API
+  useEffect(() => {
+    if (!session?.accessToken) return
+    api.auth.me(session.accessToken)
+      .then(me => setFreshFree(me.has_free_interview))
+      .catch(() => {})
+  }, [session?.accessToken])
   const [loading,  setLoading]  = useState(false)
   const [error,    setError]    = useState('')
 
@@ -58,7 +68,7 @@ export default function SetupPage() {
           Career<span className="text-brand-500">Mind</span>
         </span>
         <span className="text-sm text-gray-400">
-          {session?.sessionsRemaining ?? '—'} sessions remaining
+          {isFree ? '1 free interview available' : '£0.20 per minute'}
         </span>
       </header>
 
@@ -124,19 +134,50 @@ export default function SetupPage() {
                 ))}
               </div>
             </div>
-            <div>
-              <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">Duration</p>
-              <div className="flex gap-2">
-                {DURATIONS.map((d) => (
-                  <button key={d} onClick={() => setDuration(d)}
-                    className={`px-4 py-1.5 rounded-full text-sm border transition-all ${duration === d
-                      ? 'bg-brand-50 border-brand-400 text-brand-600'
-                      : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300'}`}>
-                    {d} min
-                  </button>
-                ))}
+            {isFree ? (
+              <div className="inline-flex items-center gap-1.5 bg-green-50
+                              text-green-700 text-xs px-3 py-1 rounded-full">
+                Using your free interview (15 minutes)
               </div>
-            </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-gray-400 uppercase tracking-wide">
+                    Duration
+                  </p>
+                  <span className="text-sm font-medium text-gray-900">
+                    {duration} minutes
+                  </span>
+                </div>
+
+                <input
+                  type="range"
+                  min={10}
+                  max={60}
+                  step={5}
+                  value={duration}
+                  onChange={e => setDuration(Number(e.target.value))}
+                  className="w-full accent-brand-500"
+                />
+
+                <div className="flex items-center justify-between text-xs text-gray-400">
+                  <span>10 min</span>
+                  <span>60 min</span>
+                </div>
+
+                <div className="bg-brand-50 border border-brand-100 rounded-lg px-4 py-3
+                                flex items-center justify-between">
+                  <span className="text-sm text-gray-600">You will be charged</span>
+                  <span className="text-lg font-medium text-brand-600">
+                    £{amountPounds}
+                  </span>
+                </div>
+
+                <p className="text-xs text-gray-400 text-center">
+                  £0.20 per minute · Charged once before your interview starts
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

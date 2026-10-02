@@ -42,7 +42,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             email:              user.email,
             accessToken:        access_token,
             refreshToken:       refresh_token,
-            sessionsRemaining:  user.sessions_remaining,
+            hasFreeInterview:   user.has_free_interview,
           }
         } catch {
           return null
@@ -55,7 +55,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.accessToken       = (user as any).accessToken
         token.refreshToken      = (user as any).refreshToken
-        token.sessionsRemaining = (user as any).sessionsRemaining
+        token.hasFreeInterview  = (user as any).hasFreeInterview
         token.userId            = (user as any).id
       }
       return token
@@ -63,7 +63,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       session.accessToken       = token.accessToken as string
       session.user.id           = token.userId as string
-      session.sessionsRemaining = token.sessionsRemaining as number
+      session.hasFreeInterview  = token.hasFreeInterview as boolean
       return session
     },
   },

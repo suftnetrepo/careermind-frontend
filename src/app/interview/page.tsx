@@ -3,13 +3,17 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { api } from '@/lib/api'
-import { Mic, MicOff, Clock, AlertCircle } from 'lucide-react'
+import { Mic, MicOff, Clock, AlertCircle, Loader2 } from 'lucide-react'
+
+const PAYMENT_POLL_ATTEMPTS = 10
+const PAYMENT_POLL_INTERVAL_MS = 2000
 
 export default function InterviewPage() {
-  const { data: session } = useSession()
+  const { data: session, status: authStatus } = useSession()
   const router = useRouter()
   const params = useSearchParams()
   const interviewId = params.get('id')
+  const paymentSuccess = params.get('payment') === 'success'
 
   const [interview,  setInterview]  = useState<any>(null)
   const [micActive,  setMicActive]  = useState(false)
@@ -18,12 +22,56 @@ export default function InterviewPage() {
   const [transcript, setTranscript] = useState<{ role: string; text: string }[]>([])
   const [qIndex,     setQIndex]     = useState(0)
   const [ending,     setEnding]     = useState(false)
-  const timerRef = useRef<NodeJS.Timeout>()
+  const [payError,   setPayError]   = useState('')
+  const timerRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const begunRef = useRef(false)
 
   useEffect(() => {
+    if (!interviewId) { router.push('/setup'); return }
     const stored = sessionStorage.getItem('cm_interview')
-    if (!stored || !interviewId) { router.push('/setup'); return }
-    const data = JSON.parse(stored)
+
+    // Stripe just redirected back — confirm payment with the API before proceeding
+    if (paymentSuccess) {
+      if (authStatus === 'loading') return
+      if (!session?.accessToken) { router.push('/login'); return }
+      let cancelled = false
+      confirmPaymentAndStart(session.accessToken, stored ? JSON.parse(stored) : {})
+        .then(data => { if (!cancelled && data) begin(data) })
+        .catch(err => { if (!cancelled) setPayError(err.message || 'Could not confirm payment') })
+      return () => { cancelled = true }
+    }
+
+    if (!stored) { router.push('/setup'); return }
+    const interview = JSON.parse(stored)
+
+    // If interview is not paid, redirect back to preview
+    if (!interview.paid && !interview.is_free) {
+      router.push(`/preview?id=${interview.interview_id}`)
+      return
+    }
+
+    begin(interview)
+  }, [authStatus])
+
+  useEffect(() => () => clearInterval(timerRef.current), [])
+
+  async function confirmPaymentAndStart(token: string, stored: any) {
+    for (let i = 0; i < PAYMENT_POLL_ATTEMPTS; i++) {
+      const fresh = await api.interviews.get(token, interviewId!)
+      if (fresh.paid) {
+        if (fresh.status === 'setup') await api.interviews.start(token, interviewId!)
+        const data = { ...stored, ...fresh, interview_id: fresh.id }
+        sessionStorage.setItem('cm_interview', JSON.stringify(data))
+        return data
+      }
+      await new Promise(r => setTimeout(r, PAYMENT_POLL_INTERVAL_MS))
+    }
+    throw new Error('We could not confirm your payment yet. Please refresh in a moment.')
+  }
+
+  function begin(data: any) {
+    if (begunRef.current) return
+    begunRef.current = true
     setInterview(data)
     setTimeLeft(data.duration_minutes * 60)
     startTimer(data.duration_minutes * 60)
@@ -34,8 +82,7 @@ export default function InterviewPage() {
         setAiSpeaking(false)
       }, 1500)
     }
-    return () => clearInterval(timerRef.current)
-  }, [])
+  }
 
   function startTimer(secs: number) {
     let s = secs
@@ -55,7 +102,7 @@ export default function InterviewPage() {
     if (ending || !session?.accessToken || !interviewId) return
     setEnding(true)
     clearInterval(timerRef.current)
-    const elapsed = (interview?.duration_minutes * 60 ?? 900) - timeLeft
+    const elapsed = (interview?.duration_minutes ?? 15) * 60 - timeLeft
     await api.interviews.end(session.accessToken, {
       interview_id:     interviewId,
       transcript_json:  JSON.stringify(transcript),
@@ -64,7 +111,24 @@ export default function InterviewPage() {
     router.push(`/feedback?id=${interviewId}`)
   }
 
-  if (!interview) return null
+  if (!interview) {
+    if (!paymentSuccess) return null
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-3 px-6 text-center">
+        {payError ? (
+          <>
+            <AlertCircle className="w-6 h-6 text-red-400" />
+            <p className="text-sm text-gray-600">{payError}</p>
+          </>
+        ) : (
+          <>
+            <Loader2 className="w-6 h-6 text-brand-500 animate-spin" />
+            <p className="text-sm text-gray-500">Confirming your payment...</p>
+          </>
+        )}
+      </div>
+    )
+  }
 
   const currentQ = interview.questions?.[qIndex]
   const isWarning = timeLeft <= 120

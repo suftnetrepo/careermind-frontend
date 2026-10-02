@@ -20,6 +20,10 @@ export interface InterviewSession {
   job_description?: string
   questions:        Question[]
   status:           InterviewStatus
+  paid:                  boolean
+  is_free:               boolean
+  amount_pence?:         number
+  stripe_session_id?:    string
   overall_score?:   number
   feedback?:        FeedbackReport
   transcript?:      TranscriptEntry[]
@@ -27,6 +31,15 @@ export interface InterviewSession {
   started_at?:      string
   ended_at?:        string
   created_at:       string
+}
+
+export interface User {
+  id:                 string
+  name:               string
+  email:              string
+  has_free_interview: boolean
+  free_minutes:       number
+  created_at:         string | null
 }
 
 export interface TranscriptEntry {
@@ -68,8 +81,8 @@ export interface SetupState {
 // Extend next-auth types
 declare module 'next-auth' {
   interface Session {
-    accessToken:       string
-    sessionsRemaining: number
+    accessToken:      string
+    hasFreeInterview: boolean
     user: {
       id:    string
       name:  string

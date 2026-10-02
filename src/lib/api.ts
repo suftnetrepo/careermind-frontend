@@ -1,3 +1,5 @@
+import type { InterviewSession, User } from '@/types'
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 async function request<T>(
@@ -25,18 +27,21 @@ export const api = {
       request('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(data) }),
 
     me: (token: string) =>
-      request('/api/v1/auth/me', { token }),
+      request<User>('/api/v1/auth/me', { token }),
   },
 
   sessions: {
-    balance: (token: string) =>
-      request('/api/v1/sessions/balance', { token }),
-
-    checkout: (token: string, pack: '1' | '5' | '10') =>
-      request<{ checkout_url: string; pack_id: string }>(
+    checkout: (token: string, data: {
+      interview_id: string;
+      duration_minutes: number
+    }) =>
+      request<{ checkout_url: string; amount_pence: number; amount_display: string }>(
         '/api/v1/sessions/checkout',
-        { method: 'POST', token, body: JSON.stringify({ pack }) }
+        { method: 'POST', token, body: JSON.stringify(data) }
       ),
+
+    pricing: () =>
+      request('/api/v1/sessions/pricing'),
   },
 
   interviews: {
@@ -61,7 +66,7 @@ export const api = {
       }),
 
     get: (token: string, id: string) =>
-      request(`/api/v1/interviews/${id}`, { token }),
+      request<InterviewSession>(`/api/v1/interviews/${id}`, { token }),
 
     history: (token: string) =>
       request('/api/v1/interviews/history', { token }),

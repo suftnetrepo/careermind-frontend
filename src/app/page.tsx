@@ -37,12 +37,12 @@ export default function LandingPage() {
           <Link href="/register" className="btn-primary flex items-center gap-2 px-6 py-3 text-base">
             Start free <ArrowRight className="w-4 h-4" />
           </Link>
-          <Link href="/buy-sessions" className="btn-secondary px-6 py-3 text-base">
-            View sessions
+          <Link href="#pricing" className="btn-secondary px-6 py-3 text-base">
+            View pricing
           </Link>
         </div>
         <p className="text-sm text-gray-400">
-          <span className="text-brand-500">1 free session</span> on signup · No credit card required
+          <span className="text-brand-500">1 free interview</span> on signup · No credit card required
         </p>
       </section>
 
@@ -104,33 +104,29 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section className="px-6 py-16 bg-gray-50 border-y border-gray-100">
+      <section id="pricing" className="px-6 py-16 bg-gray-50 border-y border-gray-100">
         <div className="max-w-3xl mx-auto">
-          <p className="text-xs text-brand-500 uppercase tracking-widest mb-2">Sessions</p>
-          <h2 className="text-2xl font-medium text-gray-900 mb-8">Pay only for what you use</h2>
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            {[
-              { sessions: '1 session',   price: '£2.99',  per: '15 minutes',         save: '',         popular: false },
-              { sessions: '5 sessions',  price: '£11.99', per: '£2.40 per session',   save: 'Save 20%', popular: true  },
-              { sessions: '10 sessions', price: '£19.99', per: '£2.00 per session',   save: 'Save 33%', popular: false },
-            ].map((p) => (
-              <div key={p.sessions} className={`bg-white rounded-xl p-5 text-center border ${p.popular ? 'border-brand-500 border-2' : 'border-gray-100'}`}>
-                {p.popular && (
-                  <div className="text-xs bg-brand-50 text-brand-600 px-3 py-1 rounded-full inline-block mb-3">
-                    Most popular
-                  </div>
-                )}
-                <div className="text-sm text-gray-400 mb-1">{p.sessions}</div>
-                <div className="text-3xl font-medium text-gray-900 mb-1">{p.price}</div>
-                <div className="text-xs text-gray-400 mb-1">{p.per}</div>
-                <div className="text-xs text-green-600 font-medium h-4">{p.save}</div>
-                <Link href="/buy-sessions" className={`mt-4 block py-2 rounded-lg text-sm font-medium ${p.popular ? 'bg-gray-900 text-white' : 'border border-gray-200 text-gray-700 hover:bg-gray-50'}`}>
-                  Buy
-                </Link>
-              </div>
-            ))}
+          <div className="text-center py-8">
+            <p className="text-2xl font-medium text-gray-900 mb-2">
+              Pay per minute
+            </p>
+            <p className="text-3xl font-medium text-brand-500 mb-1">
+              £0.20 <span className="text-lg text-gray-400">/ minute</span>
+            </p>
+            <p className="text-sm text-gray-400 mb-6">
+              10 minutes minimum · 60 minutes maximum ·
+              No subscription · No expiry
+            </p>
+            <div className="flex justify-center gap-6 text-sm text-gray-500 mb-8">
+              <span>10 min = £2.00</span>
+              <span>15 min = £3.00</span>
+              <span>20 min = £4.00</span>
+              <span>30 min = £6.00</span>
+            </div>
+            <Link href="/register" className="btn-primary px-8 py-3 text-base">
+              Start free — first interview on us
+            </Link>
           </div>
-          <p className="text-sm text-gray-400 text-center">Sessions never expire · Buy more anytime</p>
         </div>
       </section>
 
@@ -138,7 +134,7 @@ export default function LandingPage() {
       <section className="px-6 py-16 text-center">
         <div className="max-w-md mx-auto card">
           <h2 className="text-xl font-medium text-gray-900 mb-2">Ready to start practising?</h2>
-          <p className="text-sm text-gray-400 mb-6">Your first session is free. No card needed.</p>
+          <p className="text-sm text-gray-400 mb-6">Your first interview is free. No card needed.</p>
           <Link href="/register" className="btn-primary flex items-center justify-center gap-2 w-full py-3">
             Get started free <ArrowRight className="w-4 h-4" />
           </Link>
