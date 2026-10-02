@@ -84,7 +84,11 @@ export interface SetupState {
   level:            Level
   focus:            Focus
   duration_minutes: number
+  voice:            string
   job_description:  string
+  cv_text:          string
+  custom_prompt:    string
+  preset_prompts:   string[]
   interview_id?:    string
   questions?:       Question[]
 }

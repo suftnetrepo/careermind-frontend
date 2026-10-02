@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Header, { SignOutButton } from '@/components/layout/Header'
 import { api } from '@/lib/api'
 import { ArrowRight, Mic, Clock, BarChart3, PoundSterling } from 'lucide-react'
 
@@ -15,19 +16,16 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-        <span className="text-base font-medium text-gray-900">
-          Career<span className="text-brand-500">Mind</span>
-        </span>
+      <Header rightContent={
         <div className="flex items-center gap-4">
           <span className="text-sm text-gray-400">
-            {hasFreeInterview ? '1 free interview available' : '£0.20 per minute'}
+            {hasFreeInterview
+              ? '1 free interview remaining'
+              : 'No free interview remaining'}
           </span>
-          <form action="/api/auth/signout" method="POST">
-            <button className="text-sm text-gray-400 hover:text-gray-600">Sign out</button>
-          </form>
+          <SignOutButton />
         </div>
-      </header>
+      } />
 
       <main className="max-w-3xl mx-auto px-6 py-10">
         <div className="mb-8">

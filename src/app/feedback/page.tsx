@@ -1,6 +1,9 @@
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Header from '@/components/layout/Header'
+import DownloadTranscriptButton from '@/components/feedback/DownloadTranscriptButton'
+import { api } from '@/lib/api'
 import { CheckCircle, AlertTriangle, ArrowRight, Download } from 'lucide-react'
 
 // Placeholder feedback — Sprint 4 will wire real GPT-4o scoring
@@ -32,21 +35,36 @@ function scoreColor(s: number) {
   return        { bar: 'bg-red-400',   text: 'text-red-500',   bg: 'bg-red-50'   }
 }
 
-export default async function FeedbackPage() {
+function fmtDuration(seconds?: number | null) {
+  if (!seconds) return null
+  return `${Math.floor(seconds / 60)} min ${seconds % 60} sec`
+}
+
+export default async function FeedbackPage({
+  searchParams,
+}: { searchParams: Promise<{ id?: string }> }) {
   const session = await auth()
   if (!session) redirect('/login')
+
+  const { id } = await searchParams
+  const interview = id
+    ? await api.interviews.get(session.accessToken, id).catch(() => null)
+    : null
+  const subtitle = interview
+    ? [interview.role, interview.level, fmtDuration(interview.duration_seconds)].filter(Boolean).join(' · ')
+    : 'AI Engineer · Mid-level · 14 min 22 sec'
 
   const fb = MOCK_FEEDBACK
   const score = fb.overall_score
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-        <span className="text-base font-medium text-gray-900">
-          Career<span className="text-brand-500">Mind</span>
-        </span>
-        <Link href="/dashboard" className="text-sm text-gray-400 hover:text-gray-600">Back to dashboard</Link>
-      </header>
+      <Header rightContent={
+        <Link href="/dashboard"
+              className="text-sm text-gray-400 hover:text-gray-600">
+          Back to dashboard
+        </Link>
+      } />
 
       <main className="max-w-2xl mx-auto px-6 py-10">
         <div className="flex items-center gap-3 mb-2">
@@ -55,7 +73,7 @@ export default async function FeedbackPage() {
           </div>
           <h1 className="text-xl font-medium text-gray-900">Interview complete</h1>
         </div>
-        <p className="text-sm text-gray-400 mb-8 pl-9">AI Engineer · Mid-level · 14 min 22 sec</p>
+        <p className="text-sm text-gray-400 mb-8 pl-9 capitalize">{subtitle}</p>
 
         {/* Overall score */}
         <div className="card mb-4">
@@ -152,6 +170,11 @@ export default async function FeedbackPage() {
           <Link href="/setup" className="btn-primary flex-1 py-3 flex items-center justify-center gap-2">
             Practice again <ArrowRight className="w-4 h-4" />
           </Link>
+          <DownloadTranscriptButton
+            transcript={(interview?.transcript as any[]) || []}
+            role={interview?.role || ''}
+            level={interview?.level || ''}
+          />
           <button className="btn-secondary flex items-center gap-2 px-4">
             <Download className="w-4 h-4" /> Report
           </button>

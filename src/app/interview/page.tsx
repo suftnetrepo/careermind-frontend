@@ -13,15 +13,29 @@ interface TranscriptLine {
   role:      'alex' | 'user'
   text:      string
   timestamp: number
+  itemId?:   string   // candidate speech turn; text is '' until Whisper finishes
+}
+
+// One answer often arrives as several VAD turns — show and save it as one line.
+// A user line with no text yet is still being transcribed.
+function mergeLines(lines: TranscriptLine[], keepPending: boolean): TranscriptLine[] {
+  const out: TranscriptLine[] = []
+  for (const line of lines) {
+    if (line.role === 'user' && !line.text && !keepPending) continue
+    const last = out[out.length - 1]
+    if (line.role === 'user' && last?.role === 'user') {
+      out[out.length - 1] = { ...last, text: [last.text, line.text].filter(Boolean).join(' ') }
+    } else {
+      out.push({ ...line })
+    }
+  }
+  return out
 }
 
 const REALTIME_CALLS_URL       = 'https://api.openai.com/v1/realtime/calls'
 const PAYMENT_POLL_ATTEMPTS    = 10
 const PAYMENT_POLL_INTERVAL_MS = 2000
 const WRAP_UP_SECONDS          = 120
-// Server VAD splits one answer at natural pauses; wait this long after Alex
-// starts replying so late fragments land before the answer is coached
-const COACHING_FLUSH_DELAY_MS  = 2000
 const MIN_COACHING_WORDS       = 5
 
 const TAG_STYLES = {
@@ -43,6 +57,32 @@ const TAG_STYLES = {
     pill:      'bg-red-50 text-red-600',
     label:     'Pitfall',
   },
+}
+
+// Render ```fenced``` code inside a transcript line as a code block
+function renderMessage(text: string) {
+  const codeBlockRegex = /```(\w+)?\n?([\s\S]*?)```/g
+  const parts: React.ReactNode[] = []
+  let last = 0
+  let match
+
+  while ((match = codeBlockRegex.exec(text)) !== null) {
+    if (match.index > last) {
+      parts.push(<span key={last}>{text.slice(last, match.index)}</span>)
+    }
+    parts.push(
+      <pre key={match.index}
+           className="bg-gray-900 text-green-400 rounded-lg p-3 mt-2 mb-2
+                      text-xs font-mono overflow-x-auto whitespace-pre-wrap">
+        <code>{match[2].trim()}</code>
+      </pre>
+    )
+    last = match.index + match[0].length
+  }
+  if (last < text.length) {
+    parts.push(<span key={last}>{text.slice(last)}</span>)
+  }
+  return parts.length > 0 ? parts : text
 }
 
 export default function InterviewPage() {
@@ -77,8 +117,17 @@ export default function InterviewPage() {
   // Coaching
   const [coachingNotes, setCoachingNotes] = useState<CoachingNote[]>([])
   const lastQuestionRef                   = useRef('')
+  const lastTagRef                        = useRef<string>('')
   const greetingRef                       = useRef('')
-  const pendingAnswerRef                  = useRef<{ question: string; parts: string[] } | null>(null)
+  // One candidate answer, which server VAD may split into several speech turns
+  // (item ids). It is coached once Alex has replied AND every turn is transcribed —
+  // Whisper can finish after Alex starts talking, especially for long answers.
+  const pendingAnswerRef                  = useRef<{
+    question:    string
+    itemIds:     string[]
+    texts:       Record<string, string>
+    alexReplied: boolean
+  } | null>(null)
 
   // WebRTC
   const pcRef           = useRef<RTCPeerConnection | null>(null)
@@ -182,12 +231,20 @@ export default function InterviewPage() {
   }
 
   function addLine(line: TranscriptLine) {
+    linesRef.current = [...linesRef.current, line]
+    setTranscript(linesRef.current)
+  }
+
+  // Whisper often finishes after Alex has started replying, so the candidate's
+  // line is placed when they start speaking and its text filled in later
+  function setUserText(itemId: string, text: string) {
     const lines = linesRef.current
-    const last  = lines[lines.length - 1]
-    // One answer often arrives as several VAD turns — keep it as one bubble
-    linesRef.current = line.role === 'user' && last?.role === 'user'
-      ? [...lines.slice(0, -1), { ...last, text: `${last.text} ${line.text}` }]
-      : [...lines, line]
+    const exists = lines.some(l => l.itemId === itemId)
+    linesRef.current = !exists
+      ? (text ? [...lines, { role: 'user', text, timestamp: Date.now(), itemId }] : lines)
+      : text
+        ? lines.map(l => l.itemId === itemId ? { ...l, text } : l)
+        : lines.filter(l => l.itemId !== itemId)
     setTranscript(linesRef.current)
   }
 
@@ -279,7 +336,10 @@ export default function InterviewPage() {
     // speaking state follows the audio buffer, not the transcript
     if (type === 'output_audio_buffer.started') {
       setTurnStatus('alex_speaking')
-      if (pendingAnswerRef.current) setTimeout(flushAnswer, COACHING_FLUSH_DELAY_MS)
+      if (pendingAnswerRef.current) {
+        pendingAnswerRef.current.alexReplied = true
+        flushAnswerIfReady()
+      }
     }
     if (type === 'output_audio_buffer.stopped' || type === 'output_audio_buffer.cleared') {
       setTurnStatus(prev => prev === 'alex_speaking' ? 'idle' : prev)
@@ -306,9 +366,8 @@ export default function InterviewPage() {
     // User is speaking (VAD detected)
     if (type === 'input_audio_buffer.speech_started') {
       setTurnStatus('user_speaking')
-      if (!pendingAnswerRef.current) {
-        pendingAnswerRef.current = { question: lastQuestionRef.current, parts: [] }
-      }
+      pendingAnswer().itemIds.push(event.item_id)
+      addLine({ role: 'user', text: '', timestamp: Date.now(), itemId: event.item_id })
     }
 
     // User stopped speaking
@@ -320,14 +379,15 @@ export default function InterviewPage() {
     // User transcript (whisper)
     if (type === 'conversation.item.input_audio_transcription.completed') {
       const text = event.transcript || ''
-      if (text.trim()) {
-        addLine({ role: 'user', text, timestamp: Date.now() })
-        if (!pendingAnswerRef.current) {
-          pendingAnswerRef.current = { question: lastQuestionRef.current, parts: [] }
-        }
-        pendingAnswerRef.current.parts.push(text.trim())
-      }
+      setUserText(event.item_id, text.trim())
+      recordTranscript(event.item_id, text.trim())
       setTurnStatus(prev => prev === 'processing' ? 'idle' : prev)
+    }
+
+    // A turn that can't be transcribed shouldn't hold up coaching forever
+    if (type === 'conversation.item.input_audio_transcription.failed') {
+      setUserText(event.item_id, '')
+      recordTranscript(event.item_id, '')
     }
 
     if (type === 'error') {
@@ -353,12 +413,30 @@ export default function InterviewPage() {
   // ── Coaching panel ───────────────────────────────────────
   // Coach the whole answer once Alex replies to it — not each VAD fragment,
   // and not the candidate's reply to the greeting
-  function flushAnswer() {
+  function pendingAnswer() {
+    if (!pendingAnswerRef.current) {
+      pendingAnswerRef.current = {
+        question: lastQuestionRef.current, itemIds: [], texts: {}, alexReplied: false,
+      }
+    }
+    return pendingAnswerRef.current
+  }
+
+  function recordTranscript(itemId: string, text: string) {
+    const pending = pendingAnswer()
+    if (!pending.itemIds.includes(itemId)) pending.itemIds.push(itemId)
+    pending.texts[itemId] = text
+    flushAnswerIfReady()
+  }
+
+  function flushAnswerIfReady() {
     const pending = pendingAnswerRef.current
+    if (!pending?.alexReplied) return
+    if (!pending.itemIds.every(id => id in pending.texts)) return
     pendingAnswerRef.current = null
-    if (!pending?.question || pending.question === greetingRef.current) return
-    const answer = pending.parts.join(' ')
-    if (answer.split(/\s+/).length < MIN_COACHING_WORDS) return
+    if (!pending.question || pending.question === greetingRef.current) return
+    const answer = pending.itemIds.map(id => pending.texts[id]).filter(Boolean).join(' ')
+    if (answer.split(/\s+/).filter(Boolean).length < MIN_COACHING_WORDS) return
     fetchCoaching(pending.question, answer, interviewRef.current?.role)
   }
 
@@ -366,7 +444,11 @@ export default function InterviewPage() {
     const token = tokenRef.current
     if (!token || !interviewId) return
     try {
-      const note = await api.interviews.coaching(token, interviewId, question, answer, role)
+      const note = await api.interviews.coaching(
+        token, interviewId, question, answer, role,
+        lastTagRef.current || undefined,
+      )
+      lastTagRef.current = note.tag
       setCoachingNotes(prev => [
         {
           id:       Date.now().toString(),
@@ -392,7 +474,9 @@ export default function InterviewPage() {
     try {
       await api.interviews.end(token, {
         interview_id:     interviewId,
-        transcript_json:  JSON.stringify(linesRef.current),
+        transcript_json:  JSON.stringify(
+          mergeLines(linesRef.current, false).map(({ itemId, ...line }) => line)
+        ),
         duration_seconds: Math.max(elapsed, 0),
       })
     } catch { /* best effort */ }
@@ -500,7 +584,7 @@ export default function InterviewPage() {
           {/* Transcript */}
           <div ref={transcriptRef}
                className="flex-1 overflow-y-auto px-5 pb-4 space-y-3">
-            {transcript.map((line, i) => (
+            {mergeLines(transcript, true).map((line, i) => (
               <div key={i}
                    className={`flex ${line.role === 'alex'
                      ? 'justify-start' : 'justify-end'}`}>
@@ -509,7 +593,9 @@ export default function InterviewPage() {
                   ${line.role === 'alex'
                     ? 'bg-gray-100 text-gray-800 rounded-tl-sm'
                     : 'bg-indigo-500 text-white rounded-tr-sm'}`}>
-                  {line.text}
+                  {line.text
+                    ? renderMessage(line.text)
+                    : <span className="opacity-70 animate-pulse">…</span>}
                 </div>
               </div>
             ))}

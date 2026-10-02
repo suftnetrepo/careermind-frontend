@@ -48,6 +48,7 @@ export const api = {
     setup: (token: string, data: {
       role: string; level: string; focus: string;
       duration_minutes?: number; job_description?: string; voice?: string
+      cv_text?: string; custom_prompt?: string; preset_prompts?: string[]
     }) =>
       request('/api/v1/interviews/setup', {
         method: 'POST', token, body: JSON.stringify(data)
@@ -77,15 +78,32 @@ export const api = {
       question: string,
       answer: string,
       role: string,
+      last_tag?: string,
     ) =>
       request<Omit<CoachingNote, 'id' | 'question'>>(
         `/api/v1/interviews/coaching?interview_id=${interview_id}`,
         {
           method: 'POST',
           token,
-          body: JSON.stringify({ question, answer, role }),
+          body: JSON.stringify({ question, answer, role, last_tag }),
         }
       ),
+
+    // Multipart upload — request() forces a JSON content type, so this uses fetch directly
+    uploadCv: async (token: string, file: File) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch(`${API_URL}/api/v1/interviews/upload-cv`, {
+        method:  'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body:    formData,
+      })
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({ detail: res.statusText }))
+        throw new Error(error.detail || 'Upload failed')
+      }
+      return res.json() as Promise<{ cv_text: string; pages: number; words: number }>
+    },
 
     get: (token: string, id: string) =>
       request<InterviewSession>(`/api/v1/interviews/${id}`, { token }),

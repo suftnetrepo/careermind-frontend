@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Header from '@/components/layout/Header'
 import { api } from '@/lib/api'
 
 export default function RegisterPage() {
@@ -38,7 +39,14 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Header rightContent={
+        <Link href="/login"
+              className="text-sm text-indigo-500">
+          Log in
+        </Link>
+      } />
+      <div className="flex-1 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <Link href="/" className="text-lg font-medium text-gray-900">
@@ -90,5 +98,6 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+      </div>
   )
 }

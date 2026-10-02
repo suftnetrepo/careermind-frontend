@@ -3,15 +3,88 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { api } from '@/lib/api'
-import { Brain, Code, Layout, BarChart3, Briefcase, Users, ArrowRight, Loader2 } from 'lucide-react'
+import Header from '@/components/layout/Header'
+import { ArrowRight, Loader2 } from 'lucide-react'
 
 const ROLES = [
-  { name: 'AI Engineer',          icon: Brain,     cat: 'AI and machine learning' },
-  { name: 'Python Developer',     icon: Code,      cat: 'Engineering' },
-  { name: 'Full Stack Developer', icon: Layout,    cat: 'Engineering' },
-  { name: 'Data Scientist',       icon: BarChart3, cat: 'Data' },
-  { name: 'Product Manager',      icon: Briefcase, cat: 'Product' },
-  { name: 'Business Analyst',     icon: Users,     cat: 'Business' },
+  { group: 'Engineering',
+    roles: [
+      'Software Engineer',
+      'Frontend Developer',
+      'Backend Developer',
+      'Full Stack Developer',
+      'Mobile Developer',
+      'DevOps Engineer',
+      'Site Reliability Engineer',
+      'Security Engineer',
+      'QA Engineer',
+      'Embedded Systems Engineer',
+    ]
+  },
+  { group: 'Data and AI',
+    roles: [
+      'AI Engineer',
+      'Data Scientist',
+      'Data Analyst',
+      'Data Engineer',
+      'ML Engineer',
+      'BI Analyst',
+    ]
+  },
+  { group: 'Product and Design',
+    roles: [
+      'Product Manager',
+      'Technical Product Manager',
+      'Product Designer',
+      'UX Researcher',
+      'UI Designer',
+    ]
+  },
+  { group: 'Business',
+    roles: [
+      'Business Analyst',
+      'Solutions Architect',
+      'Project Manager',
+      'Programme Manager',
+      'Scrum Master',
+      'Delivery Manager',
+    ]
+  },
+  { group: 'Leadership',
+    roles: [
+      'Engineering Manager',
+      'Head of Engineering',
+      'VP Engineering',
+      'CTO',
+      'Head of Product',
+      'Head of Data',
+    ]
+  },
+  { group: 'Finance and Ops',
+    roles: [
+      'Financial Analyst',
+      'Operations Manager',
+      'Strategy Consultant',
+      'Management Consultant',
+    ]
+  },
+  { group: 'Sales and Marketing',
+    roles: [
+      'Sales Engineer',
+      'Account Executive',
+      'Growth Manager',
+      'Marketing Manager',
+    ]
+  },
+]
+
+const PRESETS = [
+  'Make it challenging',
+  'Focus on my weak areas',
+  'Be encouraging — I get nervous',
+  'Senior level questions only',
+  'Focus on system design',
+  'Focus on behavioural questions',
 ]
 
 // Must match REALTIME_VOICES in the backend
@@ -38,11 +111,20 @@ export default function SetupPage() {
   const { data: session } = useSession()
   const router = useRouter()
 
-  const [role,     setRole]     = useState('AI Engineer')
+  const [role,       setRole]       = useState('')
+  const [customRole, setCustomRole] = useState('')
+  const isCustomRole  = role === 'other'
+  const effectiveRole = (isCustomRole ? customRole : role).trim()
   const [level,    setLevel]    = useState('Mid-level')
   const [focus,    setFocus]    = useState('Mixed')
   const [duration, setDuration] = useState(30)
   const [jd,       setJd]       = useState('')
+  const [selectedPresets, setSelectedPresets] = useState<string[]>([])
+  const [customPrompt,    setCustomPrompt]    = useState('')
+  const [cvFile,      setCvFile]      = useState<File | null>(null)
+  const [cvText,      setCvText]      = useState('')
+  const [cvUploading, setCvUploading] = useState(false)
+  const [cvError,     setCvError]     = useState('')
   const [voice,    setVoice]    = useState('alloy')
   const [freshFree, setFreshFree] = useState<boolean | null>(null)
   const isFree = (freshFree ?? session?.hasFreeInterview) === true
@@ -57,17 +139,55 @@ export default function SetupPage() {
   const [loading,  setLoading]  = useState(false)
   const [error,    setError]    = useState('')
 
+  const togglePreset = (p: string) => {
+    setSelectedPresets(prev =>
+      prev.includes(p)
+        ? prev.filter(x => x !== p)
+        : [...prev, p]
+    )
+  }
+
+  async function handleCvUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''   // let the same file be picked again after an error
+    if (!file) return
+    if (!session?.accessToken) { router.push('/login'); return }
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      setCvError('Please upload a PDF file')
+      return
+    }
+    setCvFile(file)
+    setCvUploading(true)
+    setCvError('')
+    try {
+      const data = await api.interviews.uploadCv(session.accessToken, file)
+      setCvText(data.cv_text)
+    } catch (err: any) {
+      setCvError(err.message || 'Upload failed')
+      setCvFile(null)
+      setCvText('')
+    } finally {
+      setCvUploading(false)
+    }
+  }
+
   async function handleGenerate() {
     if (!session?.accessToken) { router.push('/login'); return }
+    if (!effectiveRole) return
     setError(''); setLoading(true)
     try {
       const result: any = await api.interviews.setup(session.accessToken, {
-        role,
+        role:             effectiveRole,
         level:            level.toLowerCase().replace('-', ''),
         focus:            focus.toLowerCase(),
         duration_minutes: duration,
+        voice:            voice,
         job_description:  jd || undefined,
-        voice,
+        cv_text:          cvText || undefined,
+        custom_prompt:    customPrompt || undefined,
+        preset_prompts:   selectedPresets.length > 0
+                            ? selectedPresets
+                            : undefined,
       })
       // Store in sessionStorage for preview page
       sessionStorage.setItem('cm_interview', JSON.stringify(result))
@@ -81,14 +201,13 @@ export default function SetupPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-        <span className="text-base font-medium text-gray-900">
-          Career<span className="text-brand-500">Mind</span>
-        </span>
+      <Header rightContent={
         <span className="text-sm text-gray-400">
-          {isFree ? '1 free interview available' : '£0.20 per minute'}
+          {isFree
+            ? '1 free interview remaining'
+            : 'Pay per session'}
         </span>
-      </header>
+      } />
 
       <main className="max-w-2xl mx-auto px-6 py-10">
         {/* Step 1 */}
@@ -98,24 +217,34 @@ export default function SetupPage() {
             <h2 className="text-base font-medium text-gray-900">Pick a role</h2>
           </div>
           <p className="text-sm text-gray-400 mb-4 pl-9">This sets the scoring rubric and question focus.</p>
-          <div className="grid grid-cols-2 gap-3">
-            {ROLES.map((r) => (
-              <button key={r.name} onClick={() => setRole(r.name)}
-                className={`text-left p-4 rounded-xl border transition-all ${role === r.name
-                  ? 'border-brand-500 border-2 bg-brand-50'
-                  : 'border-gray-100 bg-white hover:border-gray-200'}`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-3
-                  ${role === r.name ? 'bg-brand-100' : 'bg-gray-50'}`}>
-                  <r.icon className={`w-4 h-4 ${role === r.name ? 'text-brand-500' : 'text-gray-400'}`} />
-                </div>
-                <div className={`text-xs mb-1 ${role === r.name ? 'text-brand-400' : 'text-gray-400'}`}>
-                  {r.cat}
-                </div>
-                <div className={`text-sm font-medium ${role === r.name ? 'text-brand-600' : 'text-gray-900'}`}>
-                  {r.name}
-                </div>
-              </button>
-            ))}
+          <div className="mb-6">
+            <select
+              value={role}
+              onChange={e => setRole(e.target.value)}
+              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm
+                         bg-white text-gray-900 focus:outline-none
+                         focus:ring-2 focus:ring-indigo-500 mb-3">
+              <option value="">Select a role...</option>
+              {ROLES.map(group => (
+                <optgroup key={group.group} label={group.group}>
+                  {group.roles.map(r => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </optgroup>
+              ))}
+              <option value="other">Other — type your role</option>
+            </select>
+
+            {isCustomRole && (
+              <input
+                type="text"
+                placeholder="Type your role..."
+                value={customRole}
+                onChange={e => setCustomRole(e.target.value)}
+                maxLength={100}
+                className="input w-full"
+              />
+            )}
           </div>
         </div>
 
@@ -227,20 +356,82 @@ export default function SetupPage() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-6 h-6 rounded-full bg-gray-900 text-white text-xs font-medium flex items-center justify-center">5</div>
-            <h2 className="text-base font-medium text-gray-900">Or paste a job description</h2>
+            <h2 className="text-base font-medium text-gray-900">Interview preferences</h2>
           </div>
-          <p className="text-sm text-gray-400 mb-3 pl-9">CareerMind will tailor every question to the exact role.</p>
+          <p className="text-sm text-gray-400 mb-4 pl-9">Optional — help Alex tailor the interview to you.</p>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {PRESETS.map(p => (
+              <button
+                key={p}
+                onClick={() => togglePreset(p)}
+                className={`pill text-xs ${selectedPresets.includes(p) ? 'selected' : ''}`}>
+                {p}
+              </button>
+            ))}
+          </div>
           <textarea
-            className="input resize-none h-24 pl-9"
-            placeholder="Paste the job posting here — CareerMind will extract the requirements and build questions from it..."
-            value={jd}
-            onChange={e => setJd(e.target.value)}
+            className="input resize-none h-16 text-sm w-full"
+            placeholder="Anything else you want Alex to know? e.g. 'I have 5 years Python experience' or 'Ask me about my last project'"
+            value={customPrompt}
+            maxLength={1000}
+            onChange={e => setCustomPrompt(e.target.value)}
           />
+        </div>
+
+        {/* Step 6 */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-6 h-6 rounded-full bg-gray-900 text-white text-xs font-medium flex items-center justify-center">6</div>
+            <h2 className="text-base font-medium text-gray-900">Upload your CV or paste a job description</h2>
+          </div>
+          <p className="text-sm text-gray-400 mb-4 pl-9">
+            Both optional — the more context you give, the more personalised your interview will be.
+          </p>
+
+          <div className="mb-4">
+            <p className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">
+              Your CV (PDF)
+            </p>
+            <label className={`flex items-center justify-center gap-3 border-2 border-dashed
+                               rounded-xl p-5 cursor-pointer transition-colors
+              ${cvFile
+                ? 'border-indigo-300 bg-indigo-50'
+                : 'border-gray-200 hover:border-gray-300'}`}>
+              <input
+                type="file"
+                accept=".pdf"
+                className="hidden"
+                onChange={handleCvUpload}
+              />
+              {cvUploading ? (
+                <span className="text-sm text-gray-400">Reading CV...</span>
+              ) : cvFile ? (
+                <span className="text-sm text-indigo-600">✓ {cvFile.name}</span>
+              ) : (
+                <span className="text-sm text-gray-400">Click to upload PDF · max 5MB</span>
+              )}
+            </label>
+            {cvError && (
+              <p className="text-xs text-red-500 mt-1">{cvError}</p>
+            )}
+          </div>
+
+          <div>
+            <p className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">
+              Job description
+            </p>
+            <textarea
+              className="input resize-none h-20 text-sm w-full"
+              placeholder="Paste the job posting here..."
+              value={jd}
+              onChange={e => setJd(e.target.value)}
+            />
+          </div>
         </div>
 
         {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
 
-        <button onClick={handleGenerate} disabled={loading}
+        <button onClick={handleGenerate} disabled={!effectiveRole || loading || cvUploading}
           className="btn-primary w-full py-3 flex items-center justify-center gap-2 text-base">
           {loading ? (
             <><Loader2 className="w-4 h-4 animate-spin" />Generating interview...</>

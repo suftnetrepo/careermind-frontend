@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { api } from '@/lib/api'
-import { CheckCircle, Mic, ArrowLeft, Loader2, Headphones, Clock, Lightbulb } from 'lucide-react'
+import Header from '@/components/layout/Header'
+import { CheckCircle, Mic, Loader2, Headphones, Clock, Lightbulb } from 'lucide-react'
 
 const TOPIC_COLORS = ['bg-brand-500', 'bg-brand-500', 'bg-green-500', 'bg-amber-500', 'bg-gray-300']
 
@@ -54,14 +55,12 @@ export default function PreviewPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-        <span className="text-base font-medium text-gray-900">
-          Career<span className="text-brand-500">Mind</span>
-        </span>
-        <button onClick={() => router.push('/setup')} className="text-sm text-gray-400 flex items-center gap-1 hover:text-gray-600">
-          <ArrowLeft className="w-4 h-4" /> Change setup
+      <Header rightContent={
+        <button onClick={() => router.push('/setup')}
+                className="text-sm text-gray-400 hover:text-gray-600 flex items-center gap-1">
+          ← Change setup
         </button>
-      </header>
+      } />
 
       <main className="max-w-xl mx-auto px-6 py-10">
         {interview.is_free && (
