@@ -12,6 +12,7 @@ const ROLES = [
       'Software Engineer',
       'Frontend Developer',
       'Backend Developer',
+      'Python Developer',
       'Full Stack Developer',
       'Mobile Developer',
       'DevOps Engineer',

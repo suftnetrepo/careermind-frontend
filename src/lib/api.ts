@@ -1,4 +1,4 @@
-import type { CoachingNote, InterviewSession, User } from '@/types'
+import type { CoachingNote, InterviewSession, StudyMaterials, User } from '@/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -104,6 +104,19 @@ export const api = {
       }
       return res.json() as Promise<{ cv_text: string; pages: number; words: number }>
     },
+
+    generateStudyMaterials: (token: string, interview_id: string) =>
+      request<StudyMaterials>(
+        `/api/v1/interviews/${interview_id}/study-materials`,
+        { method: 'POST', token }
+      ),
+
+    // quiz/flashcards are null until generated
+    getStudyMaterials: (token: string, interview_id: string) =>
+      request<{ quiz: StudyMaterials['quiz'] | null; flashcards: StudyMaterials['flashcards'] | null; cached: boolean }>(
+        `/api/v1/interviews/${interview_id}/study-materials`,
+        { token }
+      ),
 
     get: (token: string, id: string) =>
       request<InterviewSession>(`/api/v1/interviews/${id}`, { token }),

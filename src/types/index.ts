@@ -53,6 +53,37 @@ export interface CoachingNote {
   question:     string
 }
 
+export interface QuizQuestion {
+  question:   string
+  topic:      string
+  difficulty: 'easy' | 'medium' | 'hard'
+  options: {
+    id:   string
+    text: string
+  }[]
+  correct:     string
+  explanation: string
+}
+
+export interface QuizAttempt {
+  questionIndex: number
+  selected:      string
+  correct:       boolean
+}
+
+export interface Flashcard {
+  front:  string
+  back:   string
+  topic:  string
+  tip:    string
+}
+
+export interface StudyMaterials {
+  quiz:       QuizQuestion[]
+  flashcards: Flashcard[]
+  cached:     boolean
+}
+
 export interface TranscriptEntry {
   role:      'ai' | 'user'
   content:   string

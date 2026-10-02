@@ -2,9 +2,10 @@ import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/layout/Header'
-import DownloadTranscriptButton from '@/components/feedback/DownloadTranscriptButton'
+import StudyTabs from '@/components/feedback/StudyTabs'
+import type { StudyMaterials } from '@/types'
 import { api } from '@/lib/api'
-import { CheckCircle, AlertTriangle, ArrowRight, Download } from 'lucide-react'
+import { CheckCircle, AlertTriangle } from 'lucide-react'
 
 // Placeholder feedback — Sprint 4 will wire real GPT-4o scoring
 const MOCK_FEEDBACK = {
@@ -50,6 +51,13 @@ export default async function FeedbackPage({
   const interview = id
     ? await api.interviews.get(session.accessToken, id).catch(() => null)
     : null
+  const cached = id
+    ? await api.interviews.getStudyMaterials(session.accessToken, id).catch(() => null)
+    : null
+  const initialMaterials: StudyMaterials | null =
+    cached?.quiz && cached.flashcards
+      ? { quiz: cached.quiz, flashcards: cached.flashcards, cached: true }
+      : null
   const subtitle = interview
     ? [interview.role, interview.level, fmtDuration(interview.duration_seconds)].filter(Boolean).join(' · ')
     : 'AI Engineer · Mid-level · 14 min 22 sec'
@@ -66,7 +74,13 @@ export default async function FeedbackPage({
         </Link>
       } />
 
-      <main className="max-w-2xl mx-auto px-6 py-10">
+      <StudyTabs
+        interviewId={id ?? null}
+        initialMaterials={initialMaterials}
+        transcript={(interview?.transcript as any[]) || []}
+        role={interview?.role || ''}
+        level={interview?.level || ''}
+      >
         <div className="flex items-center gap-3 mb-2">
           <div className="w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center">
             <CheckCircle className="w-4 h-4" />
@@ -166,20 +180,7 @@ export default async function FeedbackPage({
           ))}
         </div>
 
-        <div className="flex gap-3">
-          <Link href="/setup" className="btn-primary flex-1 py-3 flex items-center justify-center gap-2">
-            Practice again <ArrowRight className="w-4 h-4" />
-          </Link>
-          <DownloadTranscriptButton
-            transcript={(interview?.transcript as any[]) || []}
-            role={interview?.role || ''}
-            level={interview?.level || ''}
-          />
-          <button className="btn-secondary flex items-center gap-2 px-4">
-            <Download className="w-4 h-4" /> Report
-          </button>
-        </div>
-      </main>
+      </StudyTabs>
     </div>
   )
 }
