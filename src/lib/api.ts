@@ -1,4 +1,4 @@
-import type { InterviewSession, User } from '@/types'
+import type { CoachingNote, InterviewSession, User } from '@/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -64,6 +64,28 @@ export const api = {
       request('/api/v1/interviews/end', {
         method: 'POST', token, body: JSON.stringify(data)
       }),
+
+    realtimeToken: (token: string, interview_id: string) =>
+      request<{ client_secret: string; session_id: string }>(
+        `/api/v1/interviews/realtime-token?interview_id=${interview_id}`,
+        { method: 'POST', token }
+      ),
+
+    coaching: (
+      token: string,
+      interview_id: string,
+      question: string,
+      answer: string,
+      role: string,
+    ) =>
+      request<Omit<CoachingNote, 'id' | 'question'>>(
+        `/api/v1/interviews/coaching?interview_id=${interview_id}`,
+        {
+          method: 'POST',
+          token,
+          body: JSON.stringify({ question, answer, role }),
+        }
+      ),
 
     get: (token: string, id: string) =>
       request<InterviewSession>(`/api/v1/interviews/${id}`, { token }),

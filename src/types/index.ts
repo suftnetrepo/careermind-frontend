@@ -28,6 +28,7 @@ export interface InterviewSession {
   feedback?:        FeedbackReport
   transcript?:      TranscriptEntry[]
   duration_seconds?: number
+  coaching_notes?:  CoachingNote[]
   started_at?:      string
   ended_at?:        string
   created_at:       string
@@ -40,6 +41,15 @@ export interface User {
   has_free_interview: boolean
   free_minutes:       number
   created_at:         string | null
+}
+
+export interface CoachingNote {
+  id:           string
+  tag:          'positive' | 'tip' | 'pitfall'
+  observation:  string
+  coaching:     string
+  try_instead?: string
+  question:     string
 }
 
 export interface TranscriptEntry {
