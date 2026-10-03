@@ -65,15 +65,11 @@ export default function PreviewPage() {
 
   async function handleStart() {
     if (!session?.accessToken || !interview?.interview_id) return
+    if (!interview.is_free) { router.push('/checkout'); return }
     setError(''); setLoading(true)
     try {
-      if (interview.is_free) {
-        await api.interviews.start(session.accessToken, interview.interview_id)
-        router.push(`/interview?id=${interview.interview_id}`)
-      } else {
-        const { checkout_url } = await api.sessions.checkout(session.accessToken, { interview_id: interview.interview_id, duration_minutes: duration })
-        window.location.href = checkout_url
-      }
+      await api.interviews.start(session.accessToken, interview.interview_id)
+      router.push(`/interview?id=${interview.interview_id}`)
     } catch (startError: any) {
       setError(startError.message || 'Unable to start the interview. Please try again.')
       setLoading(false)

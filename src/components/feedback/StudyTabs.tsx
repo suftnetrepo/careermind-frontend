@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { ArrowRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Loader2, Mic, Sparkles } from 'lucide-react'
 import DownloadTranscriptButton from '@/components/feedback/DownloadTranscriptButton'
 import QuizTab from '@/components/interview/QuizTab'
 import FlashcardTab from '@/components/interview/FlashcardTab'
@@ -68,51 +68,53 @@ export default function StudyTabs({
   return (
     <>
       {/* Tab bar — aligned with the header content */}
-      <div className="bg-white border-b border-gray-100 px-6">
-        <div className="max-w-5xl mx-auto flex gap-0">
+      <div className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 px-5 backdrop-blur-xl sm:px-8">
+        <div className="mx-auto flex min-h-20 max-w-7xl items-center gap-4">
+          <Link href="/dashboard" className="mr-2 inline-flex shrink-0 items-center gap-2.5 text-xl font-extrabold tracking-[-.04em] text-slate-950"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-200"><Mic className="h-5 w-5" /></span><span className="hidden sm:inline">Career<span className="text-indigo-600">Mind</span></span></Link>
+          <div className="flex min-w-0 flex-1 self-stretch overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors
+              className={`shrink-0 border-b-2 px-4 text-sm font-bold transition-colors sm:px-6
                 ${activeTab === tab.id
                   ? 'border-indigo-500 text-indigo-600'
                   : 'border-transparent text-gray-400 hover:text-gray-600'}`}>
               {tab.label}
             </button>
           ))}
+          </div>
+          <Link href="/dashboard" className="hidden shrink-0 items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-indigo-600 md:inline-flex"><ArrowLeft className="h-4 w-4" />Back to dashboard</Link>
         </div>
       </div>
 
       {activeTab === 'feedback' && (
-        <main className="max-w-2xl mx-auto px-6 py-10">
+        <main className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:py-10">
           {children}
 
           {/* Generate study materials CTA */}
           {!studyMaterials && (
-            <div className="card text-center py-8 mb-6">
-              <p className="text-gray-900 font-medium mb-2">
+            <div className="mb-6 flex flex-col items-center justify-between gap-6 rounded-[28px] border border-indigo-100 bg-gradient-to-r from-indigo-50 to-violet-50 p-7 text-center shadow-sm sm:flex-row sm:text-left">
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-sm"><BookOpen className="h-7 w-7" /></span><div className="flex-1"><p className="mb-2 text-lg font-extrabold text-slate-900">
                 Turn this interview into a study session
               </p>
-              <p className="text-sm text-gray-400 mb-6">
+              <p className="text-sm leading-6 text-slate-500">
                 Generate 25 quiz questions and flashcards based on the topics
                 covered in your interview.
-              </p>
-              {studyError && <p className="text-sm text-red-500 mb-3">{studyError}</p>}
+              </p>{studyError && <p className="mt-2 text-sm text-red-500">{studyError}</p>}</div>
               <button
                 onClick={handleGenerateStudy}
                 disabled={generating || !interviewId}
-                className="btn-primary disabled:opacity-50">
+                className="inline-flex min-h-12 shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 text-sm font-extrabold text-white shadow-lg shadow-indigo-200 disabled:opacity-50">
                 {generating
-                  ? 'Generating study materials...'
-                  : 'Generate quiz and flashcards →'}
+                  ? <><Loader2 className="h-4 w-4 animate-spin" />Generating...</>
+                  : <><Sparkles className="h-4 w-4" />Generate quiz and flashcards<ArrowRight className="h-4 w-4" /></>}
               </button>
-              <p className="text-xs text-gray-400 mt-3">Takes about 15–20 seconds</p>
             </div>
           )}
 
           {studyMaterials && (
-            <div className="bg-green-50 border border-green-100 rounded-xl p-4 mb-6 text-center">
+            <div className="mb-6 rounded-[22px] border border-green-100 bg-green-50 p-5 text-center">
               <p className="text-sm text-green-700 font-medium mb-2">
                 Study materials ready
               </p>
@@ -127,8 +129,8 @@ export default function StudyTabs({
             </div>
           )}
 
-          <div className="flex gap-3">
-            <Link href="/setup" className="btn-primary flex-1 py-3 flex items-center justify-center gap-2">
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link href="/setup" className="flex min-h-13 flex-1 items-center justify-center gap-2 rounded-xl bg-slate-950 px-6 py-3 text-sm font-extrabold text-white">
               Practice again <ArrowRight className="w-4 h-4" />
             </Link>
             <DownloadTranscriptButton
@@ -144,7 +146,7 @@ export default function StudyTabs({
       )}
 
       {activeTab === 'flashcards' && (
-        <div className="max-w-5xl mx-auto px-6">
+        <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
           {studyMaterials?.flashcards ? (
             <FlashcardTab cards={studyMaterials.flashcards} />
           ) : (
@@ -157,7 +159,7 @@ export default function StudyTabs({
       )}
 
       {activeTab === 'quiz' && (
-        <div className="max-w-5xl mx-auto px-6">
+        <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
           {studyMaterials?.quiz ? (
             <QuizTab questions={studyMaterials.quiz} />
           ) : (

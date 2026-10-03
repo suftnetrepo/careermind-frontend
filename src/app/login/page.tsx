@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Header from '@/components/layout/Header'
+import AuthShell from '@/components/auth/AuthShell'
+import { ArrowRight, LockKeyhole, Mail } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -27,52 +28,14 @@ export default function LoginPage() {
     }
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header rightContent={
-        <Link href="/register"
-              className="text-sm text-indigo-500">
-          Sign up free
-        </Link>
-      } />
-      <div className="flex-1 flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <Link href="/" className="text-lg font-medium text-gray-900">
-            Career<span className="text-brand-500">Mind</span>
-          </Link>
-          <p className="text-sm text-gray-400 mt-1">Practice interviews. Land the job.</p>
-        </div>
-
-        <div className="card">
-          <h1 className="text-lg font-medium text-gray-900 mb-6">Welcome back</h1>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="label">Email</label>
-              <input className="input" type="email" placeholder="you@example.com"
-                value={email} onChange={e => setEmail(e.target.value)} required />
-            </div>
-            <div>
-              <label className="label">Password</label>
-              <input className="input" type="password" placeholder="••••••••"
-                value={password} onChange={e => setPassword(e.target.value)} required />
-            </div>
-
-            {error && <p className="text-sm text-red-500">{error}</p>}
-
-            <button type="submit" className="btn-primary w-full py-2.5" disabled={loading}>
-              {loading ? 'Logging in...' : 'Log in'}
-            </button>
-          </form>
-
-          <p className="text-center text-sm text-gray-400 mt-6">
-            Don't have an account?{' '}
-            <Link href="/register" className="text-brand-500 hover:underline">Sign up free</Link>
-          </p>
-        </div>
-      </div>
-    </div>
-      </div>
-  )
+  return <AuthShell action={<p className="text-sm text-slate-500">New here? <Link href="/register" className="ml-1 font-extrabold text-indigo-600">Create an account</Link></p>}>
+    <p className="text-xs font-extrabold uppercase tracking-[.16em] text-indigo-600">Welcome back</p><h1 className="mt-3 text-4xl font-extrabold tracking-[-.05em] text-slate-950">Continue your progress</h1><p className="mt-3 text-base leading-7 text-slate-500">Sign in to practise, review feedback and prepare for your next opportunity.</p>
+    <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+      <div><label className="mb-2 block text-xs font-extrabold uppercase tracking-[.12em] text-slate-500">Email address</label><div className="relative"><Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" /><input className="min-h-14 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" required /></div></div>
+      <div><label className="mb-2 block text-xs font-extrabold uppercase tracking-[.12em] text-slate-500">Password</label><div className="relative"><LockKeyhole className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" /><input className="min-h-14 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100" type="password" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" required /></div></div>
+      {error && <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">{error}</div>}
+      <button type="submit" className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 font-extrabold text-white shadow-xl shadow-indigo-200 transition hover:-translate-y-0.5 disabled:opacity-50" disabled={loading}>{loading ? 'Signing in...' : <>Sign in <ArrowRight className="h-5 w-5" /></>}</button>
+    </form>
+    <p className="mt-7 text-center text-sm text-slate-500">Don&apos;t have an account? <Link href="/register" className="font-extrabold text-indigo-600">Start free</Link></p>
+  </AuthShell>
 }
