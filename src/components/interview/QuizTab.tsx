@@ -191,7 +191,31 @@ export default function QuizTab({ questions }: Props) {
       </div>
       <aside className="space-y-5 lg:sticky lg:top-28 lg:h-fit">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <section className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-[0_16px_40px_rgba(30,41,59,.05)]"><div className="flex items-center gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600"><Wrench className="h-5 w-5" /></span><h2 className="text-lg font-extrabold text-slate-900">Your progress</h2></div><div className="mt-6 flex items-center gap-5"><div className="relative h-28 w-28 shrink-0"><svg width="112" height="112" viewBox="0 0 112 112" className="-rotate-90"><circle cx="56" cy="56" r="45" fill="none" stroke="#eef2ff" strokeWidth="10"/><circle cx="56" cy="56" r="45" fill="none" stroke="#6366f1" strokeWidth="10" strokeDasharray="282.7" strokeDashoffset={282.7 - (282.7 * attempts.length / questions.length)} strokeLinecap="round"/></svg><span className="absolute inset-0 flex items-center justify-center text-2xl font-black text-slate-950">{Math.round(attempts.length / questions.length * 100)}%</span></div><div className="space-y-4 border-l border-slate-100 pl-5"><div><p className="flex items-center gap-2 text-lg font-black text-slate-900"><CheckCircle2 className="h-5 w-5 text-emerald-500" />{score}/{questions.length}</p><p className="text-xs text-slate-400">Correct</p></div><div><p className="flex items-center gap-2 text-lg font-black text-slate-900"><Flame className="h-5 w-5 text-orange-500" />{streak}</p><p className="text-xs text-slate-400">Streak</p></div></div></div></section>
+          <section className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-[0_16px_40px_rgba(30,41,59,.05)]">
+            <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600"><Wrench className="h-5 w-5" /></span>
+              <h2 className="text-lg font-extrabold text-slate-900">Your progress</h2>
+            </div>
+            <div className="mt-5 flex justify-center border-b border-slate-100 pb-5">
+              <div className="relative h-28 w-28 shrink-0">
+                <svg width="112" height="112" viewBox="0 0 112 112" className="-rotate-90">
+                  <circle cx="56" cy="56" r="45" fill="none" stroke="#eef2ff" strokeWidth="10" />
+                  <circle cx="56" cy="56" r="45" fill="none" stroke="#6366f1" strokeWidth="10" strokeDasharray="282.7" strokeDashoffset={282.7 - (282.7 * attempts.length / questions.length)} strokeLinecap="round" className="transition-all" />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-2xl font-black text-slate-950">{Math.round(attempts.length / questions.length * 100)}%</span>
+              </div>
+            </div>
+            <div className="mt-2 divide-y divide-slate-100">
+              <div className="flex items-center justify-between gap-3 py-3">
+                <span className="flex items-center gap-2.5 text-sm font-medium text-slate-500"><CheckCircle2 className="h-4 w-4 text-emerald-500" />Correct</span>
+                <span className="text-sm font-extrabold text-slate-900">{score}/{questions.length}</span>
+              </div>
+              <div className="flex items-center justify-between gap-3 py-3">
+                <span className="flex items-center gap-2.5 text-sm font-medium text-slate-500"><Flame className="h-4 w-4 text-orange-500" />Streak</span>
+                <span className="text-sm font-extrabold text-slate-900">{streak}</span>
+              </div>
+            </div>
+          </section>
           <section className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-[0_16px_40px_rgba(30,41,59,.05)]"><div className="flex items-center gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-100 text-amber-600"><Lightbulb className="h-5 w-5" /></span><h2 className="text-lg font-extrabold text-slate-900">Question tips</h2></div><div className="mt-5 rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50 p-5 text-sm leading-7 text-slate-600">Focus on the key principle behind <strong className="text-slate-800">{q.topic}</strong>. Compare each option with established best practices before choosing.</div></section>
         </div>
         <section className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-[0_16px_40px_rgba(30,41,59,.05)]"><div className="flex items-center gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-100 text-blue-600"><Code2 className="h-5 w-5" /></span><h2 className="text-lg font-extrabold text-slate-900">Topic</h2></div><span className="mt-5 inline-flex rounded-full bg-indigo-50 px-4 py-2 text-xs font-extrabold text-indigo-600">{q.topic}</span></section>

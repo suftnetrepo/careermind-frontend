@@ -9,8 +9,8 @@ export default function AuthShell({
   action: React.ReactNode;
 }) {
   return (
-    <main className="bg-[radial-gradient(circle_at_8%_85%,rgba(191,219,254,.25),transparent_25%),radial-gradient(circle_at_92%_10%,rgba(196,181,253,.28),transparent_25%),#f8faff] p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-7xl overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-[0_30px_90px_rgba(30,41,59,.12)] sm:min-h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-4rem)]">
+    <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_8%_85%,rgba(191,219,254,.25),transparent_25%),radial-gradient(circle_at_92%_10%,rgba(196,181,253,.28),transparent_25%),#f8faff] p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto flex max-w-7xl overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-[0_30px_90px_rgba(30,41,59,.12)]">
         <aside className="relative hidden w-[46%] overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-950 p-12 text-white lg:flex lg:flex-col">
           <div className="absolute -right-28 top-20 h-80 w-80 rounded-full bg-violet-500/20 blur-3xl" />
           <div className="absolute -bottom-24 -left-20 h-72 w-72 rounded-full bg-blue-500/20 blur-3xl" />
@@ -24,10 +24,7 @@ export default function AuthShell({
             Career<span className="-ml-2.5 text-indigo-300">Mind</span>
           </Link>
           <div className="relative my-auto py-12">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-bold text-indigo-200">
-              <Sparkles className="h-4 w-4" />
-              AI-powered interview practice
-            </span>
+           
             <h2 className="mt-7 max-w-lg text-5xl font-extrabold leading-[1.05] tracking-[-.055em]">
               Build confidence before the conversation matters.
             </h2>
@@ -35,23 +32,6 @@ export default function AuthShell({
               Practise realistic interviews, receive focused coaching and turn
               every session into measurable progress.
             </p>
-            <div className="mt-10 grid gap-3 sm:grid-cols-3">
-              {[
-                { icon: Mic, label: "Natural voice AI" },
-                { icon: BarChart3, label: "Focused feedback" },
-                { icon: ShieldCheck, label: "Private practice" },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="rounded-2xl border border-white/10 bg-white/[.07] p-4 backdrop-blur"
-                >
-                  <item.icon className="h-5 w-5 text-indigo-300" />
-                  <p className="mt-3 text-xs font-bold text-white">
-                    {item.label}
-                  </p>
-                </div>
-              ))}
-            </div>
           </div>
           <p className="relative text-xs text-indigo-200/50">
             © 2026 CareerMind · Suftnet Ltd
@@ -70,7 +50,7 @@ export default function AuthShell({
             </Link>
             <div className="ml-auto hidden sm:block">{action}</div>
           </header>
-          <div className="flex flex-1 items-center justify-center px-6 pb-12 sm:px-10">
+          <div className="flex justify-center px-6 py-8 sm:px-10 sm:py-10">
             <div className="w-full max-w-md">{children}</div>
           </div>
         </section>

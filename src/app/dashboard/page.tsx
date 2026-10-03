@@ -10,12 +10,14 @@ import {
   Clock3,
   History,
   Home,
+  LogOut,
   Mic,
   PoundSterling,
   Sparkles,
   Star,
   Target,
   TrendingUp,
+  UserRound,
   Zap,
 } from 'lucide-react'
 
@@ -70,7 +72,13 @@ export default async function DashboardPage() {
     ? Math.round(scored.reduce((sum, item) => sum + (item.overall_score ?? 0), 0) / scored.length)
     : null
   const firstName = session.user?.name?.split(' ')[0] || 'there'
-  const initial = firstName.charAt(0).toUpperCase()
+  const profileName = session.user?.name || 'Candidate'
+  const profileInitials = profileName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(part => part.charAt(0).toUpperCase())
+    .join('')
 
   return (
     <div className="min-h-screen bg-[#f8faff] text-slate-950">
@@ -82,38 +90,43 @@ export default async function DashboardPage() {
               <Zap className="h-3.5 w-3.5" fill="currentColor" />
               {hasFreeInterview ? '1 free interview remaining' : 'Pay as you practise'}
             </span>
-            <SignOutButton />
-            <span className="hidden h-7 w-px bg-slate-200 sm:block" />
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-950 text-sm font-extrabold text-white">{initial}</span>
-              <span className="hidden text-sm font-bold text-slate-800 md:block">{firstName}</span>
-            </div>
           </div>
         </div>
       </header>
 
       <div className="mx-auto flex max-w-[1500px]">
-        <aside className="hidden min-h-[calc(100vh-5rem)] w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white px-5 py-8 lg:flex">
+        <aside className="sticky top-20 hidden h-[calc(100vh-5rem)] w-64 shrink-0 flex-col overflow-y-auto border-r border-slate-200/80 bg-white px-5 py-8 lg:flex">
           <nav className="space-y-2" aria-label="Dashboard navigation">
-            <Link href="/dashboard" className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-indigo-50 to-violet-50 px-4 py-3.5 text-sm font-bold text-indigo-600 shadow-sm"><Home className="h-5 w-5" />Home</Link>
+            <Link href="/dashboard" className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-indigo-50 to-violet-50 px-4 py-3.5 text-sm font-bold text-indigo-600 shadow-sm"><Home className="h-5 w-5" />Dashboard</Link>
             <Link href="/setup" className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600"><Mic className="h-5 w-5" />New interview</Link>
-            <a href="#recent-sessions" className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600"><History className="h-5 w-5" />History</a>
-            <a href="#pricing" className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600"><PoundSterling className="h-5 w-5" />Pricing</a>
+            <Link href="/history" className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600"><History className="h-5 w-5" />History</Link>
           </nav>
-          <div className="mt-auto rounded-[22px] border border-indigo-100 bg-gradient-to-br from-indigo-50 to-violet-50 p-5">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-amber-500 shadow-sm"><Star className="h-5 w-5" fill="currentColor" /></span>
-            <h3 className="mt-4 text-sm font-extrabold text-slate-900">Sharpen your next answer</h3>
-            <p className="mt-2 text-xs leading-5 text-slate-500">Practise consistently and use your feedback to improve.</p>
-            <Link href="/setup" className="mt-4 inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-600">Start practising <ArrowRight className="h-3.5 w-3.5" /></Link>
+          <div className="mt-auto space-y-4">
+            <div className="rounded-[22px] border border-indigo-100 bg-gradient-to-br from-indigo-50 to-violet-50 p-5">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-amber-500 shadow-sm"><Star className="h-5 w-5" fill="currentColor" /></span>
+              <h3 className="mt-4 text-sm font-extrabold text-slate-900">Sharpen your next answer</h3>
+              <p className="mt-2 text-xs leading-5 text-slate-500">Practise consistently and use your feedback to improve.</p>
+              <Link href="/setup" className="mt-4 inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-600">Start practising <ArrowRight className="h-3.5 w-3.5" /></Link>
+            </div>
+            <SignOutButton className="flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-500 transition hover:border-rose-100 hover:bg-rose-50 hover:text-rose-600"><LogOut className="h-5 w-5" />Sign out</SignOutButton>
+            <div className="rounded-[22px] border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-extrabold text-white">{profileInitials || <UserRound className="h-5 w-5" />}</span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-extrabold text-slate-900">{profileName}</p>
+                  <p className="truncate text-xs text-slate-500">{session.user?.email || 'Signed in'}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </aside>
 
         <main className="min-w-0 flex-1 px-5 py-8 sm:px-8 lg:px-12 lg:py-12 xl:px-16">
           <div className="mx-auto max-w-6xl">
             <nav className="mb-8 flex gap-2 overflow-x-auto pb-1 lg:hidden" aria-label="Mobile dashboard navigation">
-              <Link href="/dashboard" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-xs font-bold text-white"><Home className="h-3.5 w-3.5" />Home</Link>
+              <Link href="/dashboard" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-xs font-bold text-white"><Home className="h-3.5 w-3.5" />Dashboard</Link>
               <Link href="/setup" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold text-slate-600 shadow-sm"><Mic className="h-3.5 w-3.5" />New interview</Link>
-              <a href="#recent-sessions" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold text-slate-600 shadow-sm"><History className="h-3.5 w-3.5" />History</a>
+              <Link href="/history" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold text-slate-600 shadow-sm"><History className="h-3.5 w-3.5" />History</Link>
             </nav>
 
             <section className="relative overflow-hidden rounded-[30px] border border-indigo-100 bg-[radial-gradient(circle_at_87%_45%,rgba(167,139,250,.28),transparent_27%),linear-gradient(135deg,#ffffff_0%,#f4f7ff_58%,#eef2ff_100%)] p-7 shadow-[0_20px_60px_rgba(79,70,229,.08)] sm:p-10">
@@ -140,13 +153,13 @@ export default async function DashboardPage() {
               <div id="pricing" className="relative overflow-hidden rounded-[22px] border border-slate-200 bg-white p-6 shadow-[0_12px_30px_rgba(30,41,59,.05)]">
                 <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-50" /><span className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600"><PoundSterling className="h-5 w-5" /></span><div className="relative mt-6"><h2 className="font-extrabold text-slate-900">Pay per minute</h2><p className="mt-2 text-sm text-slate-500">£0.20/min · from £3.00</p></div>
               </div>
-              <a href="#recent-sessions" className="group relative overflow-hidden rounded-[22px] border border-slate-200 bg-white p-6 shadow-[0_12px_30px_rgba(30,41,59,.05)] transition hover:-translate-y-1 hover:border-sky-200 hover:shadow-xl">
+              <Link href="/history" className="group relative overflow-hidden rounded-[22px] border border-slate-200 bg-white p-6 shadow-[0_12px_30px_rgba(30,41,59,.05)] transition hover:-translate-y-1 hover:border-sky-200 hover:shadow-xl">
                 <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-sky-50" /><span className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-600"><BarChart3 className="h-5 w-5" /></span><div className="relative mt-6 flex items-end justify-between gap-3"><div><h2 className="font-extrabold text-slate-900">Your progress</h2><p className="mt-2 text-sm text-slate-500">{averageScore == null ? 'Complete a session to see insights' : `${averageScore}% average interview score`}</p></div><ArrowRight className="h-5 w-5 text-sky-500 transition group-hover:translate-x-1" /></div>
-              </a>
+              </Link>
             </section>
 
             <section id="recent-sessions" className="scroll-mt-28 pt-12">
-              <div className="mb-5 flex items-center justify-between"><div><p className="text-xs font-extrabold uppercase tracking-[0.15em] text-indigo-600">Your practice</p><h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-slate-950">Recent sessions</h2></div>{history.length > 0 && <span className="text-sm font-bold text-slate-400">Latest {history.length}</span>}</div>
+              <div className="mb-5 flex items-center justify-between"><div><p className="text-xs font-extrabold uppercase tracking-[0.15em] text-indigo-600">Your practice</p><h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-slate-950">Recent sessions</h2></div><div className="flex items-center gap-4">{history.length > 0 && <span className="hidden text-sm font-bold text-slate-400 sm:inline">Latest {history.length}</span>}<Link href="/history" className="text-sm font-extrabold text-indigo-600 hover:text-indigo-800">View all</Link></div></div>
               {history.length > 0 ? (
                 <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_14px_35px_rgba(30,41,59,.05)]">
                   {history.map((item, index) => (

@@ -7,12 +7,18 @@ interface HeaderProps {
 }
 
 // Client-side so server pages (dashboard, feedback) can render a sign-out control
-export function SignOutButton() {
+export function SignOutButton({
+  className,
+  children = 'Sign out',
+}: {
+  className?: string
+  children?: React.ReactNode
+}) {
   return (
     <button
       onClick={() => signOut()}
-      className="text-sm text-gray-400 hover:text-gray-600">
-      Sign out
+      className={className ?? 'text-sm text-gray-400 hover:text-gray-600'}>
+      {children}
     </button>
   )
 }
