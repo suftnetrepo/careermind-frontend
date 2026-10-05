@@ -36,6 +36,13 @@ const REALTIME_CALLS_URL       = 'https://api.openai.com/v1/realtime/calls'
 const PAYMENT_POLL_ATTEMPTS    = 10
 const PAYMENT_POLL_INTERVAL_MS = 2000
 const WRAP_UP_SECONDS          = 120
+// When the clock hits zero Alex closes the interview; the call ends after this
+const GRACE_SECONDS            = 60
+const CLOSING_INSTRUCTION =
+  'The interview time has ended. Say a warm, professional closing: thank the candidate for ' +
+  'their time, give one brief positive observation about something they actually said (if they ' +
+  'gave little or no real answer, thank them for practising instead of inventing praise), and let ' +
+  'them know their feedback report will be ready shortly. Keep it under 30 seconds.'
 const MIN_COACHING_WORDS       = 5
 
 const TAG_STYLES = {
@@ -157,6 +164,14 @@ function InterviewRoom() {
   const timerRef                    = useRef<NodeJS.Timeout | null>(null)
   const timeLeftRef                 = useRef(0)
   const warnedRef                   = useRef(false)
+  const [gracePeriod, setGracePeriod]     = useState(false)
+  const [graceSecsLeft, setGraceSecsLeft] = useState(GRACE_SECONDS)
+  const graceTimerRef                     = useRef<NodeJS.Timeout | null>(null)
+  const graceStartedRef                   = useRef(false)   // interval callbacks can't see state
+  const graceUsedRef                      = useRef(0)
+  // Realtime rejects response.create while a response is in progress — queue it
+  const responseActiveRef                 = useRef(false)
+  const responsePendingRef                = useRef(false)
 
   // Transcript
   const [transcript, setTranscript]   = useState<TranscriptLine[]>([])
@@ -271,7 +286,31 @@ function InterviewRoom() {
         warnedRef.current = true
         sendTextEvent('You have 2 minutes remaining. Please wrap up naturally.')
       }
-      if (s <= 0) handleEnd()
+      if (s <= 0) {
+        if (timerRef.current) clearInterval(timerRef.current)
+        timerRef.current = null
+        startGracePeriod()
+      }
+    }, 1000)
+  }
+
+  // Time's up: Alex closes the interview, and the call ends GRACE_SECONDS later
+  function startGracePeriod() {
+    if (graceStartedRef.current || endingRef.current) return
+    graceStartedRef.current = true
+    setGracePeriod(true)
+    setGraceSecsLeft(GRACE_SECONDS)
+    sendTextEvent(CLOSING_INSTRUCTION)
+    let grace = GRACE_SECONDS
+    graceTimerRef.current = setInterval(() => {
+      grace--
+      graceUsedRef.current = GRACE_SECONDS - grace
+      setGraceSecsLeft(grace)
+      if (grace <= 0) {
+        if (graceTimerRef.current) clearInterval(graceTimerRef.current)
+        graceTimerRef.current = null
+        handleEnd()
+      }
     }, 1000)
   }
 
@@ -441,9 +480,24 @@ function InterviewRoom() {
       recordTranscript(event.item_id, '')
     }
 
+    if (type === 'response.created') responseActiveRef.current = true
+    if (type === 'response.done') {
+      responseActiveRef.current = false
+      if (responsePendingRef.current) {
+        responsePendingRef.current = false
+        requestResponse()
+      }
+    }
+
     if (type === 'error') {
       console.error('Realtime error event:', event.error)
     }
+  }
+
+  function requestResponse() {
+    if (dcRef.current?.readyState !== 'open') return
+    if (responseActiveRef.current) { responsePendingRef.current = true; return }
+    dcRef.current.send(JSON.stringify({ type: 'response.create' }))
   }
 
   // ── Send a system note to Alex mid-interview ─────────────
@@ -457,7 +511,7 @@ function InterviewRoom() {
           content: [{ type: 'input_text', text }],
         },
       }))
-      dcRef.current.send(JSON.stringify({ type: 'response.create' }))
+      requestResponse()
     }
   }
 
@@ -521,7 +575,7 @@ function InterviewRoom() {
     const token = tokenRef.current
     if (!token || !interviewId) return
     const total   = (interviewRef.current?.duration_minutes ?? 15) * 60
-    const elapsed = total - timeLeftRef.current
+    const elapsed = total - timeLeftRef.current + graceUsedRef.current
     try {
       await api.interviews.end(token, {
         interview_id:     interviewId,
@@ -537,6 +591,8 @@ function InterviewRoom() {
   function cleanup() {
     if (timerRef.current) clearInterval(timerRef.current)
     timerRef.current = null
+    if (graceTimerRef.current) clearInterval(graceTimerRef.current)
+    graceTimerRef.current = null
     streamRef.current?.getTracks().forEach(t => t.stop())
     dcRef.current?.close()
     pcRef.current?.close()
@@ -595,13 +651,22 @@ function InterviewRoom() {
           </div>
         </div>
         <div className="flex items-center gap-3 sm:gap-5">
-          <div className={`flex items-center gap-1.5 text-sm font-bold ${isWarning ? 'text-red-500' : 'text-slate-500'}`}>
-            <Clock className="h-4 w-4" /><span className="font-mono">{fmtTime(timeLeft)}</span>
-            {isWarning && <span className="hidden text-xs font-normal sm:inline">(wrapping up)</span>}
+          <div className={`flex items-center gap-1.5 text-sm font-bold ${gracePeriod ? 'text-amber-500' : isWarning ? 'text-red-500' : 'text-slate-500'}`}>
+            <Clock className="h-4 w-4" />
+            <span className="font-mono">{gracePeriod ? `+${graceSecsLeft}s` : fmtTime(timeLeft)}</span>
+            {gracePeriod && <span className="hidden text-xs font-normal sm:inline">wrapping up</span>}
+            {!gracePeriod && isWarning && <span className="hidden text-xs font-normal sm:inline">(wrapping up)</span>}
           </div>
           <button onClick={handleEnd} className="hidden min-h-11 items-center gap-2 rounded-xl border border-red-100 bg-red-50 px-5 text-sm font-extrabold text-red-500 transition hover:bg-red-100 md:inline-flex"><PhoneOff className="h-4 w-4" />End interview</button>
         </div>
       </header>
+
+      {gracePeriod && (
+        <div className="flex flex-shrink-0 items-center justify-between border-b border-amber-100 bg-amber-50 px-6 py-2">
+          <p className="text-xs text-amber-700">Time&apos;s up — Alex is wrapping up the interview</p>
+          <p className="font-mono text-xs text-amber-500">Ending in {graceSecsLeft}s</p>
+        </div>
+      )}
 
       {/* Main — split layout */}
       <div className="grid flex-1 grid-cols-1 gap-3 overflow-hidden p-3 lg:grid-cols-[1.18fr_.82fr]">
