@@ -89,6 +89,13 @@ export default async function DashboardPage() {
         <div className="mx-auto flex h-20 max-w-[1500px] items-center justify-between">
           <Link href="/dashboard" aria-label="CareerMind dashboard"><Brand /></Link>
           <div className="flex items-center gap-3 sm:gap-5">
+            {me?.is_admin && (
+              <Link
+                href="/admin"
+                className="rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-100">
+                Admin panel
+              </Link>
+            )}
             <span className={`hidden items-center gap-2 rounded-full px-4 py-2 text-xs font-bold sm:inline-flex ${hasFreeInterview ? 'bg-violet-50 text-violet-700' : 'bg-slate-100 text-slate-600'}`}>
               <Zap className="h-3.5 w-3.5" fill="currentColor" />
               {hasFreeInterview ? '1 free interview remaining' : 'Pay as you practise'}

@@ -42,7 +42,68 @@ export interface User {
   has_free_interview: boolean
   free_minutes:       number
   email_verified:     boolean
+  is_admin:           boolean
   created_at:         string | null
+}
+
+export interface AdminOverview {
+  users: {
+    total:      number
+    this_month: number
+    last_month: number
+  }
+  interviews: {
+    total:      number
+    this_month: number
+  }
+  revenue: {
+    this_month: number
+    total:      number
+  }
+  avg_score:    number
+  free_count:   number
+  paid_count:   number
+  popular_roles: {
+    role:  string
+    count: number
+  }[]
+}
+
+export interface AdminUser {
+  id:          string
+  name:        string
+  email:       string
+  is_admin:    boolean
+  created_at:  string
+  interviews:  number
+  avg_score:   number
+  last_active: string | null
+}
+
+export interface AdminInterview {
+  id:               string
+  user_name:        string
+  user_email:       string
+  role:             string
+  level:            string
+  status:           string
+  is_free:          boolean
+  paid:             boolean
+  amount_pence:     number | null
+  overall_score:    number | null
+  duration_seconds: number | null
+  created_at:       string
+}
+
+export interface AdminRevenue {
+  daily: { date: string; revenue: number; payments: number }[]
+  tiers: { label: string; count: number }[]
+}
+
+export interface Paged {
+  total: number
+  page:  number
+  pages: number
 }
 
 export interface CoachingNote {

@@ -1,4 +1,7 @@
-import type { CoachingNote, FeedbackReport, InterviewSession, StudyMaterials, User } from '@/types'
+import type {
+  AdminInterview, AdminOverview, AdminRevenue, AdminUser, CoachingNote, FeedbackReport,
+  InterviewSession, Paged, StudyMaterials, User,
+} from '@/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -48,6 +51,20 @@ export const api = {
       request<{ sent: boolean; already_verified: boolean }>('/api/v1/auth/resend-verification', {
         method: 'POST', token,
       }),
+  },
+
+  admin: {
+    overview: (token: string) =>
+      request<AdminOverview>('/api/v1/admin/overview', { token }),
+
+    users: (token: string, page = 1) =>
+      request<Paged & { users: AdminUser[] }>(`/api/v1/admin/users?page=${page}`, { token }),
+
+    interviews: (token: string, page = 1) =>
+      request<Paged & { interviews: AdminInterview[] }>(`/api/v1/admin/interviews?page=${page}`, { token }),
+
+    revenue: (token: string) =>
+      request<AdminRevenue>('/api/v1/admin/revenue', { token }),
   },
 
   sessions: {
