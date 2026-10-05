@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { api } from '@/lib/api'
 import { priceDisplay } from '@/lib/pricing'
 import {
   ArrowLeft, ArrowRight, BarChart3, Check, CheckCircle2, Clock3, Code2,
@@ -37,7 +36,6 @@ export default function PreviewPage() {
   const router = useRouter()
   const [interview, setInterview] = useState<any>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
 
   useEffect(() => {
     const stored = sessionStorage.getItem('cm_interview')
@@ -67,14 +65,9 @@ export default function PreviewPage() {
   async function handleStart() {
     if (!session?.accessToken || !interview?.interview_id) return
     if (!interview.is_free) { router.push('/checkout'); return }
-    setError(''); setLoading(true)
-    try {
-      await api.interviews.start(session.accessToken, interview.interview_id)
-      router.push(`/interview?id=${interview.interview_id}`)
-    } catch (startError: any) {
-      setError(startError.message || 'Unable to start the interview. Please try again.')
-      setLoading(false)
-    }
+    // Same path as paid interviews: the mic check starts the interview once it passes
+    setLoading(true)
+    router.push(`/check?id=${interview.interview_id}`)
   }
 
   if (!interview) return <div className="flex min-h-screen items-center justify-center bg-[#f8faff]"><Loader2 className="h-7 w-7 animate-spin text-indigo-500" /></div>
@@ -108,7 +101,7 @@ export default function PreviewPage() {
 
         <section className="mt-6 rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_18px_50px_rgba(30,41,59,.05)] sm:p-8"><div className="flex items-center gap-4"><span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-100 text-violet-600"><Headphones className="h-6 w-6" /></span><div><h2 className="text-xl font-extrabold tracking-[-0.02em] text-slate-900">Before you start</h2><p className="mt-1 text-sm text-slate-500">A few quick tips for the best experience.</p></div></div><div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{[{ icon: Headphones, color: 'bg-violet-100 text-violet-600', title: 'Use headphones', text: 'Get the clearest voice experience with good audio.' }, { icon: Mic, color: 'bg-sky-100 text-sky-600', title: 'Speak clearly', text: 'Alex listens and responds naturally.' }, { icon: Clock3, color: 'bg-emerald-100 text-emerald-600', title: 'Take your time', text: `You have ${duration} minutes — pace yourself.` }, { icon: Lightbulb, color: 'bg-amber-100 text-amber-600', title: "It's fine to pause", text: 'Take a moment to think before answering.' }].map(item => <div key={item.title} className="rounded-[20px] border border-slate-100 bg-slate-50/60 p-5"><span className={`flex h-10 w-10 items-center justify-center rounded-xl ${item.color}`}><item.icon className="h-5 w-5" /></span><h3 className="mt-4 text-sm font-extrabold text-slate-900">{item.title}</h3><p className="mt-2 text-xs leading-5 text-slate-500">{item.text}</p></div>)}</div></section>
 
-        <div className="mx-auto max-w-3xl pb-10 pt-7">{error && <div className="mb-4 rounded-2xl border border-red-100 bg-red-50 px-5 py-4 text-center text-sm font-semibold text-red-600">{error}</div>}<button onClick={handleStart} disabled={loading || !session?.accessToken} className="flex min-h-16 w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-7 text-lg font-extrabold text-white shadow-xl shadow-indigo-200 transition hover:-translate-y-0.5 hover:shadow-2xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0">{loading ? <><Loader2 className="h-5 w-5 animate-spin" />{interview.is_free ? 'Starting your interview...' : 'Redirecting to payment...'}</> : <><Mic className="h-5 w-5" />{interview.is_free ? 'Start free interview' : `Pay ${price} and start`}<ArrowRight className="h-5 w-5" /></>}</button><p className="mt-3 text-center text-xs text-slate-400">Check your microphone and find a quiet place before you begin.</p></div>
+        <div className="mx-auto max-w-3xl pb-10 pt-7"><button onClick={handleStart} disabled={loading || !session?.accessToken} className="flex min-h-16 w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-7 text-lg font-extrabold text-white shadow-xl shadow-indigo-200 transition hover:-translate-y-0.5 hover:shadow-2xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0">{loading ? <><Loader2 className="h-5 w-5 animate-spin" />{interview.is_free ? 'Starting your interview...' : 'Redirecting to payment...'}</> : <><Mic className="h-5 w-5" />{interview.is_free ? 'Start free interview' : `Pay ${price} and start`}<ArrowRight className="h-5 w-5" /></>}</button><p className="mt-3 text-center text-xs text-slate-400">Check your microphone and find a quiet place before you begin.</p></div>
       </main>
     </div>
   )
