@@ -30,7 +30,9 @@ export default function PrivacyPage() {
             'Your data is used solely to provide the CareerMind service — generating interview questions, ' +
             'conducting voice interviews, producing feedback and study materials, sending account emails such as ' +
             'email confirmation, and keeping the service secure and working. We do not sell your data or use it ' +
-            'to train AI models.',
+            'to train AI models. Authorised Suftnet staff may review interview scores and feedback summaries for ' +
+            'quality assurance and product improvement. Staff cannot access interview transcripts, voice ' +
+            'recordings or CV content.',
         },
         {
           title: 'Voice and CV data',

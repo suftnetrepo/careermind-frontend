@@ -195,26 +195,21 @@ export default async function AdminInterviewPage({ params }: { params: Promise<{
           </div>
         )}
 
-        {/* Questions asked */}
+        {/* Topics covered — labels only; question text can contain CV details */}
         {interview.questions.length > 0 && (
           <div className="card">
             <p className="mb-4 text-sm font-medium text-gray-900">
-              Questions asked
+              Topics covered
               <span className="ml-2 font-normal text-gray-400">({interview.questions.length})</span>
             </p>
             <div className="space-y-2">
               {interview.questions.map((q, i) => (
-                <div key={i} className="flex items-start gap-3 border-b border-gray-50 py-2 last:border-0">
-                  <span className="mt-0.5 w-5 flex-shrink-0 text-xs text-gray-300">{i + 1}</span>
-                  <div className="flex-1">
-                    <p className="text-sm leading-relaxed text-gray-700">{q.question}</p>
-                    <div className="mt-1 flex gap-2">
-                      <span className="text-xs text-gray-400">{q.topic}</span>
-                      <span className="text-xs text-gray-300">·</span>
-                      <span className="text-xs capitalize text-gray-400">{q.difficulty}</span>
-                      <span className="text-xs text-gray-300">·</span>
-                      <span className="text-xs capitalize text-gray-400">{q.type.replace('_', ' ')}</span>
-                    </div>
+                <div key={i} className="flex items-center gap-3 border-b border-gray-50 py-2 last:border-0">
+                  <span className="w-5 flex-shrink-0 text-xs text-gray-300">{i + 1}</span>
+                  <div className="flex gap-2">
+                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs capitalize text-gray-600">{q.topic}</span>
+                    <span className="rounded-full bg-gray-50 px-2 py-0.5 text-xs capitalize text-gray-400">{q.difficulty}</span>
+                    <span className="rounded-full bg-gray-50 px-2 py-0.5 text-xs capitalize text-gray-400">{q.type.replace('_', ' ')}</span>
                   </div>
                 </div>
               ))}

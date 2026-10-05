@@ -113,7 +113,7 @@ export interface AdminInterviewDetail {
   amount_pence:     number | null
   overall_score:    number | null
   feedback:         FeedbackReport | null
-  questions:        { question: string; topic: string; type: string; difficulty: string }[]
+  questions:        { topic: string; type: string; difficulty: string }[]
   created_at:       string | null
   started_at:       string | null
   ended_at:         string | null
