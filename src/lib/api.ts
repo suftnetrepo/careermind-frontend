@@ -1,5 +1,5 @@
 import type {
-  AdminInterview, AdminInterviewDetail, AdminOverview, AdminRevenue, AdminUser, CoachingNote, FeedbackReport,
+  AdminInterview, AdminInterviewDetail, AdminOverview, AdminRevenue, AdminUser, CheckReady, CoachingNote, FeedbackReport,
   InterviewSession, Paged, StudyMaterials, User,
 } from '@/types'
 
@@ -30,6 +30,10 @@ async function request<T>(
 }
 
 export const api = {
+  // Plain reachability check — no auth, never throws
+  health: () =>
+    fetch(`${API_URL}/health`, { cache: 'no-store' }).then(r => r.ok).catch(() => false),
+
   auth: {
     register: (data: { name: string; email: string; password: string }) =>
       request('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(data) }),
@@ -94,6 +98,9 @@ export const api = {
       request('/api/v1/interviews/setup', {
         method: 'POST', token, body: JSON.stringify(data)
       }),
+
+    checkReady: (token: string, interview_id: string) =>
+      request<CheckReady>(`/api/v1/interviews/${interview_id}/check-ready`, { token }),
 
     start: (token: string, interview_id: string) =>
       request('/api/v1/interviews/start', {

@@ -30,6 +30,7 @@ type HistoryItem = {
   level: string
   focus: string
   status: string
+  paid: boolean
   overall_score: number | null
   duration_seconds: number | null
   created_at: string | null
@@ -181,7 +182,7 @@ export default async function DashboardPage() {
                   {history.map((item, index) => (
                     <div key={item.id} className={`flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6 ${index !== history.length - 1 ? 'border-b border-slate-100' : ''}`}>
                       <div className="flex min-w-0 items-center gap-4"><span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${item.status === 'completed' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>{item.status === 'completed' ? <CheckCircle2 className="h-5 w-5" /> : <Clock3 className="h-5 w-5" />}</span><div className="min-w-0"><h3 className="truncate font-extrabold capitalize text-slate-900">{item.role}</h3><p className="mt-1 text-xs capitalize text-slate-500">{item.level} · {item.focus} · {formatDate(item.created_at)} · {formatDuration(item.duration_seconds)}</p></div></div>
-                      <div className="flex items-center justify-between gap-5 pl-16 sm:justify-end sm:pl-0">{item.overall_score != null && <div className="text-right"><p className="text-lg font-black text-slate-900">{item.overall_score}%</p><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Score</p></div>}{item.status === 'completed' ? <Link href={`/feedback?id=${item.id}`} className="inline-flex items-center gap-1.5 text-sm font-extrabold text-indigo-600">View feedback <ArrowRight className="h-4 w-4" /></Link> : <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold capitalize text-amber-700">{item.status}</span>}</div>
+                      <div className="flex items-center justify-between gap-5 pl-16 sm:justify-end sm:pl-0">{item.overall_score != null && <div className="text-right"><p className="text-lg font-black text-slate-900">{item.overall_score}%</p><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Score</p></div>}{item.status === 'completed' ? <Link href={`/feedback?id=${item.id}`} className="inline-flex items-center gap-1.5 text-sm font-extrabold text-indigo-600">View feedback <ArrowRight className="h-4 w-4" /></Link> : item.status === 'setup' && item.paid ? <span className="flex items-center gap-3"><span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">Ready to start</span><Link href={`/check?id=${item.id}`} className="inline-flex items-center gap-1.5 text-sm font-extrabold text-indigo-600">Start <ArrowRight className="h-4 w-4" /></Link></span> : <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold capitalize text-amber-700">{item.status}</span>}</div>
                     </div>
                   ))}
                 </div>

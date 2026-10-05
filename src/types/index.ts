@@ -223,3 +223,16 @@ declare module 'next-auth' {
     }
   }
 }
+
+export interface CheckReady {
+  id:               string
+  ready:            boolean
+  paid:             boolean
+  is_free:          boolean
+  already_started:  boolean
+  completed:        boolean
+  role:             string
+  level:            string
+  duration_minutes: number
+  amount_pence:     number | null
+}

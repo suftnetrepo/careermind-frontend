@@ -22,6 +22,7 @@ type HistoryItem = {
   level: string
   focus: string
   status: string
+  paid: boolean
   overall_score: number | null
   duration_seconds: number | null
   created_at: string | null
@@ -140,7 +141,7 @@ export default async function HistoryPage() {
                       </div>
                       <div className="flex items-center justify-between gap-5 pl-16 sm:justify-end sm:pl-0">
                         {item.overall_score != null && <div className="text-right"><p className="text-lg font-black text-slate-900">{item.overall_score}%</p><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Score</p></div>}
-                        {item.status === 'completed' ? <Link href={`/feedback?id=${item.id}`} className="inline-flex items-center gap-1.5 text-sm font-extrabold text-indigo-600">View feedback <ArrowRight className="h-4 w-4" /></Link> : <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold capitalize text-amber-700">{item.status}</span>}
+                        {item.status === 'completed' ? <Link href={`/feedback?id=${item.id}`} className="inline-flex items-center gap-1.5 text-sm font-extrabold text-indigo-600">View feedback <ArrowRight className="h-4 w-4" /></Link> : item.status === 'setup' && item.paid ? <span className="flex items-center gap-3"><span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">Ready to start</span><Link href={`/check?id=${item.id}`} className="inline-flex items-center gap-1.5 text-sm font-extrabold text-indigo-600">Start <ArrowRight className="h-4 w-4" /></Link></span> : <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold capitalize text-amber-700">{item.status}</span>}
                       </div>
                     </article>
                   ))}
