@@ -49,7 +49,8 @@ export const api = {
   sessions: {
     checkout: (token: string, data: {
       interview_id: string;
-      duration_minutes: number
+      duration_minutes: number;
+      consent: boolean      // agreed to immediate start / no 14-day cancellation
     }) =>
       request<{ checkout_url: string; amount_pence: number; amount_display: string }>(
         '/api/v1/sessions/checkout',
