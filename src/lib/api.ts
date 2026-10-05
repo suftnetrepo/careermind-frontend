@@ -14,6 +14,11 @@ async function request<T>(
   if (token) headers['Authorization'] = `Bearer ${token}`
 
   const res = await fetch(`${API_URL}${path}`, { ...rest, headers })
+  // A rejected login token in the browser (account suspended, secret changed,
+  // refresh failed) — sign out rather than leave a page where every call fails
+  if (res.status === 401 && token && typeof window !== 'undefined') {
+    import('next-auth/react').then(({ signOut }) => signOut({ callbackUrl: '/login' }))
+  }
   if (!res.ok) {
     const error = await res.json().catch(() => ({ detail: res.statusText }))
     throw new Error(error.detail || 'Request failed')
@@ -28,6 +33,17 @@ export const api = {
 
     me: (token: string) =>
       request<User>('/api/v1/auth/me', { token }),
+
+    // No login needed — the link from the email may be opened on another device
+    verifyEmail: (verificationToken: string) =>
+      request<{ verified: boolean; email: string }>('/api/v1/auth/verify-email', {
+        method: 'POST', body: JSON.stringify({ token: verificationToken }),
+      }),
+
+    resendVerification: (token: string) =>
+      request<{ sent: boolean; already_verified: boolean }>('/api/v1/auth/resend-verification', {
+        method: 'POST', token,
+      }),
   },
 
   sessions: {

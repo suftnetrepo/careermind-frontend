@@ -41,6 +41,7 @@ export interface User {
   email:              string
   has_free_interview: boolean
   free_minutes:       number
+  email_verified:     boolean
   created_at:         string | null
 }
 
@@ -129,6 +130,7 @@ declare module 'next-auth' {
   interface Session {
     accessToken:      string
     hasFreeInterview: boolean
+    error?:           string   // 'RefreshTokenError' when the backend login can't be renewed
     user: {
       id:    string
       name:  string

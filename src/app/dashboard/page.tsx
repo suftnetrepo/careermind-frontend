@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { api } from '@/lib/api'
 import { SignOutButton } from '@/components/layout/Header'
+import VerifyEmailNotice from '@/components/auth/VerifyEmailNotice'
 import {
   ArrowRight,
   BarChart3,
@@ -62,6 +63,7 @@ export default async function DashboardPage() {
     api.interviews.history(session.accessToken).catch(() => []),
   ])
   const hasFreeInterview = me?.has_free_interview ?? session.hasFreeInterview
+  const needsVerification = hasFreeInterview && me?.email_verified === false
   const allHistory: HistoryItem[] = Array.isArray(historyResult)
     ? historyResult.filter((item): item is HistoryItem => Boolean(item && typeof item === 'object' && 'id' in item))
     : []
@@ -144,6 +146,9 @@ export default async function DashboardPage() {
                 </div>
                 <Link href="/setup" className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-6 text-sm font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-indigo-950 sm:w-auto">{hasFreeInterview ? 'Start free interview' : 'Start interview'} <ArrowRight className="h-4 w-4" /></Link>
               </div>
+              {needsVerification && (
+                <div className="relative mt-4"><VerifyEmailNotice email={me?.email} /></div>
+              )}
             </section>
 
             <section className="mt-7 grid gap-4 md:grid-cols-3">

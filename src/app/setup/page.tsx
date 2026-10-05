@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { api } from '@/lib/api'
 import { SignOutButton } from '@/components/layout/Header'
+import VerifyEmailNotice from '@/components/auth/VerifyEmailNotice'
 import {
   ArrowRight, BarChart3, BriefcaseBusiness, Check, CheckCircle2, Code2,
   FileText, Heart, History, Home, Lightbulb, Loader2, Mic, Play,
@@ -68,14 +69,20 @@ export default function SetupPage() {
   const [cvError, setCvError] = useState('')
   const [voice, setVoice] = useState('alloy')
   const [freshFree, setFreshFree] = useState<boolean | null>(null)
+  const [emailVerified, setEmailVerified] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const isFree = (freshFree ?? session?.hasFreeInterview) === true
+  // The free interview needs a confirmed email (the API refuses it otherwise)
+  const needsVerification = isFree && emailVerified === false
   const firstName = session?.user?.name?.split(' ')[0] || 'Candidate'
 
   useEffect(() => {
     if (!session?.accessToken) return
-    api.auth.me(session.accessToken).then(me => setFreshFree(me.has_free_interview)).catch(() => {})
+    api.auth.me(session.accessToken).then(me => {
+      setFreshFree(me.has_free_interview)
+      setEmailVerified(me.email_verified)
+    }).catch(() => {})
   }, [session?.accessToken])
 
   const togglePreset = (preset: string) => setSelectedPresets(previous => previous.includes(preset) ? previous.filter(item => item !== preset) : [...previous, preset])
@@ -149,7 +156,7 @@ export default function SetupPage() {
 
                 <section className="py-8"><StepHeading number={6} title="Add your CV or job description" description="Both are optional. More context creates a more personalised interview." /><div className="space-y-5"><div><p className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.13em] text-slate-400">Your CV (PDF)</p><label className={`flex min-h-40 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-5 text-center transition ${cvFile ? 'border-indigo-300 bg-indigo-50' : 'border-slate-200 bg-slate-50/50 hover:border-indigo-300 hover:bg-indigo-50/40'}`}><input type="file" accept=".pdf" className="hidden" onChange={handleCvUpload} />{cvUploading ? <Loader2 className="h-7 w-7 animate-spin text-indigo-500" /> : cvFile ? <CheckCircle2 className="h-7 w-7 text-emerald-500" /> : <Upload className="h-7 w-7 text-indigo-500" />}<span className={`mt-3 text-sm font-extrabold ${cvFile ? 'text-indigo-700' : 'text-slate-700'}`}>{cvUploading ? 'Reading CV...' : cvFile ? cvFile.name : 'Click to upload PDF'}</span><span className="mt-1 text-xs text-slate-400">Maximum file size 5MB</span></label>{cvError && <p className="mt-2 text-xs font-semibold text-red-500">{cvError}</p>}</div><div><p className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.13em] text-slate-400">Job description</p><textarea value={jd} onChange={event => setJd(event.target.value)} placeholder="Paste the job posting here..." className="min-h-48 w-full resize-y rounded-2xl border border-slate-200 bg-slate-50/50 p-4 text-sm leading-6 text-slate-800 outline-none placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100" /></div></div></section>
               </div>
-              <div className="border-t border-slate-100 bg-slate-50/60 p-6 sm:p-8">{error && <div className="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">{error}</div>}<button onClick={handleGenerate} disabled={!effectiveRole || loading || cvUploading} className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 text-base font-extrabold text-white shadow-xl shadow-indigo-200 transition hover:-translate-y-0.5 hover:shadow-2xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0">{loading ? <><Loader2 className="h-5 w-5 animate-spin" />Generating interview...</> : isFree ? <><Sparkles className="h-5 w-5" />Generate free interview <ArrowRight className="h-5 w-5" /></> : <><Sparkles className="h-5 w-5" />Generate interview — {DURATIONS.find(item => item.min === duration)?.price}<ArrowRight className="h-5 w-5" /></>}</button></div>
+              <div className="border-t border-slate-100 bg-slate-50/60 p-6 sm:p-8">{needsVerification && <div className="mb-4"><VerifyEmailNotice email={session?.user?.email} /></div>}{error && <div className="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">{error}</div>}<button onClick={handleGenerate} disabled={!effectiveRole || loading || cvUploading || needsVerification} className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 text-base font-extrabold text-white shadow-xl shadow-indigo-200 transition hover:-translate-y-0.5 hover:shadow-2xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0">{loading ? <><Loader2 className="h-5 w-5 animate-spin" />Generating interview...</> : isFree ? <><Sparkles className="h-5 w-5" />Generate free interview <ArrowRight className="h-5 w-5" /></> : <><Sparkles className="h-5 w-5" />Generate interview — {DURATIONS.find(item => item.min === duration)?.price}<ArrowRight className="h-5 w-5" /></>}</button></div>
             </div>
 
             <aside className="space-y-5 xl:sticky xl:top-28">
