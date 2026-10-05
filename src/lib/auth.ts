@@ -111,4 +111,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/login',
   },
   session: { strategy: 'jwt' },
+  // Off Vercel, Auth.js only trusts the request host if AUTH_URL or
+  // AUTH_TRUST_HOST is set (NEXTAUTH_URL doesn't count); otherwise every
+  // /api/auth call fails with UntrustedHost. Render's proxy sets the host.
+  trustHost: true,
 })
