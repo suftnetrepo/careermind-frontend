@@ -135,7 +135,8 @@ export const api = {
       ),
 
     getFeedbackStatus: (token: string, interview_id: string) =>
-      request<{ ready: boolean; score: number | null; feedback: FeedbackReport | null }>(
+      // retrying: the backend lost the first job (e.g. a deploy) and started another
+      request<{ ready: boolean; score: number | null; feedback: FeedbackReport | null; retrying: boolean }>(
         `/api/v1/interviews/${interview_id}/feedback-status`,
         { token }
       ),

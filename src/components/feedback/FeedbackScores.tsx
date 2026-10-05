@@ -6,7 +6,9 @@ import { api } from '@/lib/api'
 import type { FeedbackReport } from '@/types'
 
 const POLL_INTERVAL_MS = 3000
-const MAX_POLLS = 20   // 60 seconds
+// The backend regenerates feedback that's still missing 2 minutes after the
+// interview ended, so keep polling past that point
+const MAX_POLLS = 60   // 3 minutes
 
 function scoreColor(s: number) {
   if (s >= 80) return { bar: 'bg-green-500', text: 'text-green-600', bg: 'bg-green-50' }
@@ -24,6 +26,7 @@ export default function FeedbackScores({ interviewId, initial }: Props) {
   const { data: session } = useSession()
   const [fb,      setFb]      = useState<FeedbackReport | null>(initial)
   const [fbError, setFbError] = useState('')
+  const [retrying, setRetrying] = useState(false)
   const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null)
 
   // Feedback is generated in the background after the interview ends — poll until ready
@@ -38,6 +41,7 @@ export default function FeedbackScores({ interviewId, initial }: Props) {
         const data = await api.interviews.getFeedbackStatus(session.accessToken, interviewId)
         if (cancelled) return
         if (data.ready && data.feedback) { setFb(data.feedback); return }
+        if (data.retrying) setRetrying(true)
       } catch { /* keep polling */ }
       if (cancelled) return
       if (++polls >= MAX_POLLS) {
@@ -63,8 +67,12 @@ export default function FeedbackScores({ interviewId, initial }: Props) {
           <>
             <div className="w-8 h-8 border-2 border-gray-200 border-t-indigo-500
                             rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-sm text-gray-500 font-medium">Analysing your interview...</p>
-            <p className="text-xs text-gray-400 mt-1">This takes about 10 seconds</p>
+            <p className="text-sm text-gray-500 font-medium">
+              {retrying ? 'Taking longer than expected — still analysing your interview...' : 'Analysing your interview...'}
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              {retrying ? 'This can take up to a minute' : 'This takes about 10 seconds'}
+            </p>
           </>
         )}
       </div>
