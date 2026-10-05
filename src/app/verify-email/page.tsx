@@ -33,7 +33,7 @@ function VerifyEmail() {
         <>
           <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-500" />
           <h1 className="text-xl font-extrabold text-slate-900">Email confirmed</h1>
-          <p className="mt-2 text-sm text-slate-500">Your free 15-minute interview is unlocked.</p>
+          <p className="mt-2 text-sm text-slate-500">Your free 10-minute interview is unlocked.</p>
           <Link href="/setup" className="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-slate-950 px-6 text-sm font-extrabold text-white hover:bg-indigo-950">
             Start your free interview
           </Link>

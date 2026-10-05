@@ -557,7 +557,7 @@ export default function LandingPage() {
             {[
               {
                 min: 15,
-                price: "£3.00",
+                price: "£4.99",
                 label: "Quick practice",
                 description: "Warm up before a real interview",
                 icon: Sparkles,
@@ -570,7 +570,7 @@ export default function LandingPage() {
               },
               {
                 min: 30,
-                price: "£6.00",
+                price: "£8.99",
                 label: "Standard",
                 description: "6–8 questions, most popular",
                 icon: Crown,
@@ -584,7 +584,7 @@ export default function LandingPage() {
               },
               {
                 min: 45,
-                price: "£9.00",
+                price: "£13.99",
                 label: "Deep dive",
                 description: "Technical, behavioural and design",
                 icon: Rocket,
@@ -597,7 +597,7 @@ export default function LandingPage() {
               },
               {
                 min: 60,
-                price: "£12.00",
+                price: "£19.99",
                 label: "Full interview",
                 description: "Complete interview simulation",
                 icon: BriefcaseBusiness,
@@ -669,7 +669,7 @@ export default function LandingPage() {
           </div>
           <p className="mt-10 flex items-center justify-center gap-2 text-center text-sm font-semibold text-slate-500">
             <CreditCard className="h-4 w-4" />
-            £0.20 per minute · First interview free · No card needed
+            Pay once per session · No subscription · First interview free
           </p>
         </div>
       </section>
@@ -702,7 +702,7 @@ export default function LandingPage() {
               Ready to start practising?
             </h2>
             <p className="mt-3 text-base text-slate-500 sm:text-lg">
-              Your first interview is free. No card needed.
+              Your first interview is free — 10 minutes, no card needed.
             </p>
             <Link
               href="/register"

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { api } from '@/lib/api'
+import { PRICES, FREE_INTERVIEW_MINUTES } from '@/lib/pricing'
 import { SignOutButton } from '@/components/layout/Header'
 import VerifyEmailNotice from '@/components/auth/VerifyEmailNotice'
 import {
@@ -33,8 +34,10 @@ const VOICES = [
   { id: 'cedar', name: 'Cedar', desc: 'Relaxed and confident', color: 'bg-cyan-100 text-cyan-600' },
 ]
 const DURATIONS = [
-  { min: 15, price: '£3.00', label: 'Quick practice' }, { min: 30, price: '£6.00', label: 'Standard session' },
-  { min: 45, price: '£9.00', label: 'Deep dive' }, { min: 60, price: '£12.00', label: 'Full interview' },
+  { min: 15, price: PRICES[15], label: 'Quick practice', desc: 'Perfect for warming up' },
+  { min: 30, price: PRICES[30], label: 'Standard', desc: 'Most popular · 6-8 questions' },
+  { min: 45, price: PRICES[45], label: 'Deep dive', desc: 'Technical, behavioural, system design' },
+  { min: 60, price: PRICES[60], label: 'Full interview', desc: 'Complete end-to-end simulation' },
 ]
 const LEVELS = ['Junior', 'Mid-level', 'Senior']
 const FOCUSES = ['Technical', 'Behavioural', 'Mixed']
@@ -70,6 +73,8 @@ export default function SetupPage() {
   const [voice, setVoice] = useState('alloy')
   const [freshFree, setFreshFree] = useState<boolean | null>(null)
   const [emailVerified, setEmailVerified] = useState<boolean | null>(null)
+  // Accounts created before the change keep the 15 minutes they were promised
+  const [freeMinutes, setFreeMinutes] = useState(FREE_INTERVIEW_MINUTES)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const isFree = (freshFree ?? session?.hasFreeInterview) === true
@@ -82,6 +87,7 @@ export default function SetupPage() {
     api.auth.me(session.accessToken).then(me => {
       setFreshFree(me.has_free_interview)
       setEmailVerified(me.email_verified)
+      if (me.free_minutes > 0) setFreeMinutes(me.free_minutes)
     }).catch(() => {})
   }, [session?.accessToken])
 
@@ -148,7 +154,7 @@ export default function SetupPage() {
 
                 <section className="py-8"><StepHeading number={2} title="Level and focus" /><div className="space-y-6"><div><p className="mb-3 text-[11px] font-extrabold uppercase tracking-[0.13em] text-slate-400">Experience level</p><div className="flex flex-wrap gap-2.5">{LEVELS.map((item, index) => { const Icon = LEVEL_ICONS[index]; const active = level === item; return <button key={item} onClick={() => setLevel(item)} className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-5 text-sm font-bold transition ${active ? 'border-indigo-400 bg-indigo-50 text-indigo-600 shadow-sm' : 'border-slate-200 bg-white text-slate-500 hover:border-indigo-200'}`}><Icon className="h-4 w-4" />{item}</button> })}</div></div><div><p className="mb-3 text-[11px] font-extrabold uppercase tracking-[0.13em] text-slate-400">Question focus</p><div className="flex flex-wrap gap-2.5">{FOCUSES.map((item, index) => { const Icon = FOCUS_ICONS[index]; const active = focus === item; return <button key={item} onClick={() => setFocus(item)} className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-5 text-sm font-bold transition ${active ? 'border-indigo-400 bg-indigo-50 text-indigo-600 shadow-sm' : 'border-slate-200 bg-white text-slate-500 hover:border-indigo-200'}`}><Icon className="h-4 w-4" />{item}</button> })}</div></div></div></section>
 
-                <section className="py-8"><StepHeading number={3} title="Duration" description={isFree ? undefined : '£0.20 per minute · charged once before your interview starts.'} />{isFree ? <div className="flex items-center gap-4 rounded-2xl border border-emerald-100 bg-emerald-50/80 p-4"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-emerald-600 shadow-sm"><CheckCircle2 className="h-5 w-5" /></span><div><p className="text-sm font-extrabold text-emerald-800">Using your free interview</p><p className="mt-1 text-xs text-emerald-700">15 minutes · no card needed</p></div></div> : <div className="grid gap-3 sm:grid-cols-2">{DURATIONS.map(item => { const active = duration === item.min; return <button key={item.min} onClick={() => setDuration(item.min)} className={`rounded-2xl border-2 p-4 text-left transition ${active ? 'border-indigo-500 bg-indigo-50 shadow-sm' : 'border-slate-100 bg-slate-50/50 hover:border-slate-200'}`}><div className="flex items-center justify-between"><span className={`text-sm font-extrabold ${active ? 'text-indigo-700' : 'text-slate-900'}`}>{item.min} minutes</span><span className={`text-lg font-black ${active ? 'text-indigo-600' : 'text-slate-700'}`}>{item.price}</span></div><p className="mt-2 text-xs text-slate-500">{item.label}</p></button> })}</div>}</section>
+                <section className="py-8"><StepHeading number={3} title="Duration" description={isFree ? undefined : 'Charged once before your interview starts.'} />{isFree ? <div className="flex items-center gap-4 rounded-2xl border border-emerald-100 bg-emerald-50/80 p-4"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-emerald-600 shadow-sm"><CheckCircle2 className="h-5 w-5" /></span><div><p className="text-sm font-extrabold text-emerald-800">Using your free interview ({freeMinutes} minutes)</p><p className="mt-1 text-xs text-emerald-700">No card needed</p></div></div> : <div className="grid gap-3 sm:grid-cols-2">{DURATIONS.map(item => { const active = duration === item.min; return <button key={item.min} onClick={() => setDuration(item.min)} className={`rounded-2xl border-2 p-4 text-left transition ${active ? 'border-indigo-500 bg-indigo-50 shadow-sm' : 'border-slate-100 bg-slate-50/50 hover:border-slate-200'}`}><div className="flex items-center justify-between"><span className={`text-sm font-extrabold ${active ? 'text-indigo-700' : 'text-slate-900'}`}>{item.min} minutes</span><span className={`text-lg font-black ${active ? 'text-indigo-600' : 'text-slate-700'}`}>{item.price}</span></div><p className="mt-2 text-xs font-bold text-slate-700">{item.label}</p><p className="mt-0.5 text-xs text-slate-500">{item.desc}</p></button> })}</div>}</section>
 
                 <section className="py-8"><StepHeading number={4} title="Choose your interviewer's voice" description="Alex will speak to you in this voice." /><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{VOICES.map(item => { const active = voice === item.id; return <button key={item.id} onClick={() => setVoice(item.id)} className={`relative rounded-2xl border-2 p-4 text-left transition ${active ? 'border-indigo-500 bg-indigo-50/70 shadow-sm' : 'border-slate-100 bg-white hover:border-slate-200'}`}>{active && <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-white"><Check className="h-3 w-3" /></span>}<div className="flex items-center gap-3"><span className={`flex h-10 w-10 items-center justify-center rounded-full ${item.color}`}><Play className="h-4 w-4 fill-current" /></span><div><p className={`text-sm font-extrabold ${active ? 'text-indigo-700' : 'text-slate-900'}`}>{item.name}</p><div className="mt-1 flex items-center gap-1 text-indigo-300"><Volume2 className="h-3 w-3" /><span className="tracking-[-2px]">|||||</span></div></div></div><p className="mt-3 text-xs leading-5 text-slate-500">{item.desc}</p></button> })}</div></section>
 

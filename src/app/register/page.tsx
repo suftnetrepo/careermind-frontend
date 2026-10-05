@@ -56,7 +56,7 @@ export default function RegisterPage() {
     >
       <span className="inline-flex justify-center items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-xs font-extrabold text-emerald-700">
         <Gift className="h-4 w-4" />
-        Your first interview is free
+        1 free 10-minute interview
       </span>
       <h1 className="mt-5 text-4xl font-extrabold tracking-[-.05em] text-slate-950">
         Create your account

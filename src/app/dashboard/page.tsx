@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { api } from '@/lib/api'
+import { PRICES, FREE_INTERVIEW_MINUTES } from '@/lib/pricing'
 import { SignOutButton } from '@/components/layout/Header'
 import VerifyEmailNotice from '@/components/auth/VerifyEmailNotice'
 import DeleteAccount from '@/components/auth/DeleteAccount'
@@ -64,6 +65,8 @@ export default async function DashboardPage() {
     api.interviews.history(session.accessToken).catch(() => []),
   ])
   const hasFreeInterview = me?.has_free_interview ?? session.hasFreeInterview
+  // Accounts created before the change keep the 15 minutes they were promised
+  const freeMinutes = me?.free_minutes || FREE_INTERVIEW_MINUTES
   const needsVerification = hasFreeInterview && me?.email_verified === false
   const allHistory: HistoryItem[] = Array.isArray(historyResult)
     ? historyResult.filter((item): item is HistoryItem => Boolean(item && typeof item === 'object' && 'id' in item))
@@ -150,7 +153,7 @@ export default async function DashboardPage() {
               <div className="relative mt-8 flex flex-col items-start justify-between gap-5 rounded-[22px] border border-indigo-200/70 bg-white/70 p-5 shadow-sm backdrop-blur sm:flex-row sm:items-center">
                 <div className="flex items-center gap-4">
                   <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-100 to-fuchsia-100 text-violet-600"><Zap className="h-7 w-7" fill="currentColor" /></span>
-                  <div><p className="font-extrabold text-slate-900">{hasFreeInterview ? 'Your first interview is free' : 'Ready for your next interview?'}</p><p className="mt-1 text-sm text-slate-500">{hasFreeInterview ? '15 minutes · no card needed' : 'Sessions from £3.00 · 15 minutes'}</p></div>
+                  <div><p className="font-extrabold text-slate-900">{hasFreeInterview ? `Your first interview is free (${freeMinutes} minutes)` : 'Ready for your next interview?'}</p><p className="mt-1 text-sm text-slate-500">{hasFreeInterview ? 'No card needed' : `Sessions from ${PRICES[15]} · 15 minutes`}</p></div>
                 </div>
                 <Link href="/setup" className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-6 text-sm font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-indigo-950 sm:w-auto">{hasFreeInterview ? 'Start free interview' : 'Start interview'} <ArrowRight className="h-4 w-4" /></Link>
               </div>
@@ -164,7 +167,7 @@ export default async function DashboardPage() {
                 <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-violet-50" /><span className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-600"><Mic className="h-5 w-5" /></span><div className="relative mt-6 flex items-end justify-between gap-3"><div><h2 className="font-extrabold text-slate-900">New interview</h2><p className="mt-2 text-sm text-slate-500">Set up and start practising</p></div><ArrowRight className="h-5 w-5 text-violet-500 transition group-hover:translate-x-1" /></div>
               </Link>
               <div id="pricing" className="relative overflow-hidden rounded-[22px] border border-slate-200 bg-white p-6 shadow-[0_12px_30px_rgba(30,41,59,.05)]">
-                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-50" /><span className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600"><PoundSterling className="h-5 w-5" /></span><div className="relative mt-6"><h2 className="font-extrabold text-slate-900">Pay per minute</h2><p className="mt-2 text-sm text-slate-500">£0.20/min · from £3.00</p></div>
+                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-50" /><span className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600"><PoundSterling className="h-5 w-5" /></span><div className="relative mt-6"><h2 className="font-extrabold text-slate-900">Pay per session</h2><p className="mt-2 text-sm text-slate-500">No subscription · from {PRICES[15]}</p></div>
               </div>
               <Link href="/history" className="group relative overflow-hidden rounded-[22px] border border-slate-200 bg-white p-6 shadow-[0_12px_30px_rgba(30,41,59,.05)] transition hover:-translate-y-1 hover:border-sky-200 hover:shadow-xl">
                 <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-sky-50" /><span className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-600"><BarChart3 className="h-5 w-5" /></span><div className="relative mt-6 flex items-end justify-between gap-3"><div><h2 className="font-extrabold text-slate-900">Your progress</h2><p className="mt-2 text-sm text-slate-500">{averageScore == null ? 'Complete a session to see insights' : `${averageScore}% average interview score`}</p></div><ArrowRight className="h-5 w-5 text-sky-500 transition group-hover:translate-x-1" /></div>
