@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { api } from '@/lib/api'
 import { SignOutButton } from '@/components/layout/Header'
 import VerifyEmailNotice from '@/components/auth/VerifyEmailNotice'
+import DeleteAccount from '@/components/auth/DeleteAccount'
 import {
   ArrowRight,
   BarChart3,
@@ -186,6 +187,7 @@ export default async function DashboardPage() {
               {[{ icon: Target, color: 'bg-violet-100 text-violet-600', title: 'Practise for any role', text: 'Tailored questions built around the opportunity you want.' }, { icon: Sparkles, color: 'bg-sky-100 text-sky-600', title: 'Real voice conversations', text: 'A natural AI interviewer with focused feedback.' }, { icon: TrendingUp, color: 'bg-emerald-100 text-emerald-600', title: 'Build confidence', text: 'Improve your answers and see progress over time.' }].map(item => <div key={item.title} className="rounded-[22px] border border-slate-200 bg-white p-6"><span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${item.color}`}><item.icon className="h-5 w-5" /></span><h3 className="mt-5 font-extrabold text-slate-900">{item.title}</h3><p className="mt-2 text-sm leading-6 text-slate-500">{item.text}</p></div>)}
             </section>
           </div>
+          <DeleteAccount />
         </main>
       </div>
     </div>

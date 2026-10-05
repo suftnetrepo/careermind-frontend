@@ -35,16 +35,19 @@ export default function PrivacyPage() {
         {
           title: 'Voice and CV data',
           content:
-            'Voice audio is streamed to OpenAI in real time to run the interview; CareerMind does not record or ' +
-            'store audio. OpenAI may retain data sent through its API for a limited period for abuse monitoring and ' +
-            'does not use it to train its models. Transcripts are stored securely and retained for 12 months. ' +
-            'CV text is stored for the duration of your account and deleted when you close it.',
+            'Voice audio is processed in real time by OpenAI and is not stored by CareerMind. ' +
+            'OpenAI may retain data sent through its API for a limited period for abuse monitoring and ' +
+            'does not use it to train its models. Interview transcripts are stored securely and deleted ' +
+            'after 12 months. CV text is stored with the interview it was uploaded for and cleared after ' +
+            '12 months.',
         },
         {
           title: 'Data retention',
           content:
-            'Interview transcripts and feedback are retained for 12 months. Account data is retained until you ' +
-            'request deletion. To delete your account and all associated data, email info@suftnet.com.',
+            'Transcripts, CV text and study materials (quiz and flashcards) are deleted after 12 months. ' +
+            'Interview scores and feedback summaries are kept for the lifetime of your account so you can ' +
+            'track your progress over time. To delete your account and all data immediately, use the ' +
+            'Delete account option in your dashboard or email info@suftnet.com.',
         },
         {
           title: 'Third parties',

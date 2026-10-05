@@ -40,6 +40,10 @@ export const api = {
         method: 'POST', body: JSON.stringify({ token: verificationToken }),
       }),
 
+    // Permanently deletes the account and all its interviews
+    deleteAccount: (token: string) =>
+      request<{ deleted: boolean }>('/api/v1/auth/account', { method: 'DELETE', token }),
+
     resendVerification: (token: string) =>
       request<{ sent: boolean; already_verified: boolean }>('/api/v1/auth/resend-verification', {
         method: 'POST', token,
