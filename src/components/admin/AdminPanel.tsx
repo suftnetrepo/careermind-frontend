@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
 import type { AdminInterview, AdminOverview, AdminRevenue, AdminUser } from '@/types'
 
@@ -45,6 +46,7 @@ function Pagination({ page, pages, onChange }: { page: number; pages: number; on
 
 export default function AdminPanel() {
   const { data: session } = useSession()
+  const router = useRouter()
   const [tab, setTab] = useState<Tab>('overview')
   const [overview, setOverview] = useState<AdminOverview | null>(null)
   const [users, setUsers] = useState<AdminUser[]>([])
@@ -249,7 +251,9 @@ export default function AdminPanel() {
                 </thead>
                 <tbody>
                   {interviews.map(i => (
-                    <tr key={i.id} className="border-b border-gray-50 hover:bg-gray-50">
+                    <tr key={i.id}
+                        className="cursor-pointer border-b border-gray-50 hover:bg-gray-50"
+                        onClick={() => router.push(`/admin/interviews/${i.id}`)}>
                       <td className="px-5 py-3">
                         <p className="font-medium text-gray-900">{i.user_name}</p>
                         <p className="text-xs text-gray-400">{i.user_email}</p>

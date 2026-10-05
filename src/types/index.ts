@@ -95,6 +95,30 @@ export interface AdminInterview {
   created_at:       string
 }
 
+// Admin view of one interview — scores and feedback only, never the
+// transcript, CV text or the verbatim answer quotes ("evidence")
+export interface AdminInterviewDetail {
+  id:               string
+  user_name:        string
+  user_email:       string
+  role:             string
+  level:            string
+  focus:            string
+  voice:            string | null
+  duration_minutes: number
+  duration_seconds: number | null
+  status:           string
+  is_free:          boolean
+  paid:             boolean
+  amount_pence:     number | null
+  overall_score:    number | null
+  feedback:         FeedbackReport | null
+  questions:        { question: string; topic: string; type: string; difficulty: string }[]
+  created_at:       string | null
+  started_at:       string | null
+  ended_at:         string | null
+}
+
 export interface AdminRevenue {
   daily: { date: string; revenue: number; payments: number }[]
   tiers: { label: string; count: number }[]

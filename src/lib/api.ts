@@ -1,5 +1,5 @@
 import type {
-  AdminInterview, AdminOverview, AdminRevenue, AdminUser, CoachingNote, FeedbackReport,
+  AdminInterview, AdminInterviewDetail, AdminOverview, AdminRevenue, AdminUser, CoachingNote, FeedbackReport,
   InterviewSession, Paged, StudyMaterials, User,
 } from '@/types'
 
@@ -65,6 +65,9 @@ export const api = {
 
     revenue: (token: string) =>
       request<AdminRevenue>('/api/v1/admin/revenue', { token }),
+
+    interviewDetail: (token: string, interview_id: string) =>
+      request<AdminInterviewDetail>(`/api/v1/admin/interviews/${interview_id}`, { token }),
   },
 
   sessions: {
