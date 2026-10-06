@@ -12,8 +12,8 @@ import type { StudyMaterials, StudyModel } from '@/types'
 type Tab = 'feedback' | 'flashcards' | 'quiz'
 
 const MODEL_OPTIONS: { value: StudyModel; label: string; desc: string; badge: string }[] = [
-  { value: 'gpt-4o-mini', label: 'Standard', desc: 'Lower cost', badge: '' },
-  { value: 'gpt-4o',      label: 'Premium',  desc: 'Higher quality',      badge: 'GPT-4o' },
+  { value: 'gpt-4o-mini', label: 'Standard', desc: 'Lower cost · ~40 seconds', badge: '' },
+  { value: 'gpt-4o',      label: 'Premium',  desc: 'Faster · ~20 seconds',    badge: 'GPT-4o' },
 ]
 const MODEL_NAMES: Record<StudyModel, string> = { 'gpt-4o': 'Premium (GPT-4o)', 'gpt-4o-mini': 'Standard (GPT-4o-mini)' }
 
@@ -37,8 +37,8 @@ export default function StudyTabs({
   const [studyMaterials, setStudyMaterials] = useState<StudyMaterials | null>(initialMaterials)
   const [generating, setGenerating] = useState(false)
   const [studyError, setStudyError] = useState('')
-  // Standard by default — the cheaper model, unless the candidate asks for Premium
-  const [studyModel, setStudyModel] = useState<StudyModel>('gpt-4o-mini')
+  // Premium by default — in testing it was faster and as good or better
+  const [studyModel, setStudyModel] = useState<StudyModel>('gpt-4o')
 
   async function handleGenerateStudy() {
     if (!session?.accessToken || !interviewId) return
@@ -146,7 +146,7 @@ export default function StudyTabs({
                     : <><Sparkles className="h-4 w-4" />Generate quiz and flashcards<ArrowRight className="h-4 w-4" /></>}
                 </button>
                 <p className="text-xs text-slate-400">
-                  {studyModel === 'gpt-4o-mini' ? 'Standard quality · about 40 seconds' : 'Premium quality · about 20 seconds'}
+                  {studyModel === 'gpt-4o-mini' ? 'Standard quality · ~40 seconds' : 'Premium quality · ~20 seconds'}
                 </p>
               </div>
             </div>
