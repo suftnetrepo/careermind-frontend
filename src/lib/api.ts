@@ -1,6 +1,6 @@
 import type {
   AdminInterview, AdminInterviewDetail, AdminOverview, AdminRevenue, AdminUser, CheckReady, CoachingNote, FeedbackReport,
-  InterviewSession, Paged, StudyMaterials, User,
+  InterviewSession, Paged, StudyMaterials, StudyModel, User,
 } from '@/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
@@ -153,15 +153,15 @@ export const api = {
       return res.json() as Promise<{ cv_text: string; pages: number; words: number }>
     },
 
-    generateStudyMaterials: (token: string, interview_id: string) =>
+    generateStudyMaterials: (token: string, interview_id: string, model: StudyModel = 'gpt-4o') =>
       request<StudyMaterials>(
         `/api/v1/interviews/${interview_id}/study-materials`,
-        { method: 'POST', token }
+        { method: 'POST', token, body: JSON.stringify({ model }) }
       ),
 
     // quiz/flashcards are null until generated
     getStudyMaterials: (token: string, interview_id: string) =>
-      request<{ quiz: StudyMaterials['quiz'] | null; flashcards: StudyMaterials['flashcards'] | null; cached: boolean }>(
+      request<{ quiz: StudyMaterials['quiz'] | null; flashcards: StudyMaterials['flashcards'] | null; cached: boolean; model?: StudyModel | null }>(
         `/api/v1/interviews/${interview_id}/study-materials`,
         { token }
       ),

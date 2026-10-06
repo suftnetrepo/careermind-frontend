@@ -164,10 +164,14 @@ export interface Flashcard {
   tip:    string
 }
 
+export type StudyModel = 'gpt-4o' | 'gpt-4o-mini'
+
 export interface StudyMaterials {
   quiz:       QuizQuestion[]
   flashcards: Flashcard[]
   cached:     boolean
+  // Null for materials generated before the model was recorded
+  model?:     StudyModel | null
 }
 
 export interface TranscriptEntry {

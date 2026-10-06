@@ -26,7 +26,7 @@ export default async function FeedbackPage({
     : null
   const initialMaterials: StudyMaterials | null =
     cached?.quiz && cached.flashcards
-      ? { quiz: cached.quiz, flashcards: cached.flashcards, cached: true }
+      ? { quiz: cached.quiz, flashcards: cached.flashcards, cached: true, model: cached.model }
       : null
   const status = id
     ? await api.interviews.getFeedbackStatus(session.accessToken, id).catch(() => null)

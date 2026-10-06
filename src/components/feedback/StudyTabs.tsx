@@ -7,9 +7,15 @@ import DownloadTranscriptButton from '@/components/feedback/DownloadTranscriptBu
 import QuizTab from '@/components/interview/QuizTab'
 import FlashcardTab from '@/components/interview/FlashcardTab'
 import { api } from '@/lib/api'
-import type { StudyMaterials } from '@/types'
+import type { StudyMaterials, StudyModel } from '@/types'
 
 type Tab = 'feedback' | 'flashcards' | 'quiz'
+
+const MODEL_OPTIONS: { value: StudyModel; label: string; desc: string; badge: string }[] = [
+  { value: 'gpt-4o-mini', label: 'Standard', desc: 'Lower cost', badge: '' },
+  { value: 'gpt-4o',      label: 'Premium',  desc: 'Higher quality',      badge: 'GPT-4o' },
+]
+const MODEL_NAMES: Record<StudyModel, string> = { 'gpt-4o': 'Premium (GPT-4o)', 'gpt-4o-mini': 'Standard (GPT-4o-mini)' }
 
 interface Props {
   interviewId:      string | null
@@ -31,13 +37,15 @@ export default function StudyTabs({
   const [studyMaterials, setStudyMaterials] = useState<StudyMaterials | null>(initialMaterials)
   const [generating, setGenerating] = useState(false)
   const [studyError, setStudyError] = useState('')
+  // Standard by default — the cheaper model, unless the candidate asks for Premium
+  const [studyModel, setStudyModel] = useState<StudyModel>('gpt-4o-mini')
 
   async function handleGenerateStudy() {
     if (!session?.accessToken || !interviewId) return
     setGenerating(true)
     setStudyError('')
     try {
-      const data = await api.interviews.generateStudyMaterials(session.accessToken, interviewId)
+      const data = await api.interviews.generateStudyMaterials(session.accessToken, interviewId, studyModel)
       setStudyMaterials(data)
       setActiveTab('flashcards')
     } catch (err: any) {
@@ -101,23 +109,57 @@ export default function StudyTabs({
               <p className="text-sm leading-6 text-slate-500">
                 Generate 25 quiz questions and flashcards based on the topics
                 covered in your interview.
-              </p>{studyError && <p className="mt-2 text-sm text-red-500">{studyError}</p>}</div>
-              <button
-                onClick={handleGenerateStudy}
-                disabled={generating || !interviewId}
-                className="inline-flex min-h-12 shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 text-sm font-extrabold text-white shadow-lg shadow-indigo-200 disabled:opacity-50">
-                {generating
-                  ? <><Loader2 className="h-4 w-4 animate-spin" />Generating...</>
-                  : <><Sparkles className="h-4 w-4" />Generate quiz and flashcards<ArrowRight className="h-4 w-4" /></>}
-              </button>
+              </p>
+
+              {/* Model selector */}
+              <div className="mt-4">
+                <p className="mb-2 text-xs uppercase tracking-wide text-slate-400">Generation quality</p>
+                <div className="flex justify-center gap-2 sm:justify-start">
+                  {MODEL_OPTIONS.map(opt => {
+                    const active = studyModel === opt.value
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => setStudyModel(opt.value)}
+                        disabled={generating}
+                        aria-pressed={active}
+                        className={`max-w-40 flex-1 rounded-xl border-2 p-3 text-left transition-all disabled:opacity-60
+                          ${active ? 'border-indigo-500 bg-white' : 'border-white/60 bg-white/60 hover:border-indigo-200'}`}>
+                        <div className="mb-1 flex items-center justify-between gap-2">
+                          <span className={`text-sm font-bold ${active ? 'text-indigo-700' : 'text-slate-700'}`}>{opt.label}</span>
+                          {opt.badge && <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-xs text-slate-500">{opt.badge}</span>}
+                        </div>
+                        <p className={`text-xs ${active ? 'text-indigo-400' : 'text-slate-400'}`}>{opt.desc}</p>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+              {studyError && <p className="mt-2 text-sm text-red-500">{studyError}</p>}</div>
+              <div className="flex shrink-0 flex-col items-center gap-2">
+                <button
+                  onClick={handleGenerateStudy}
+                  disabled={generating || !interviewId}
+                  className="inline-flex min-h-12 shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 text-sm font-extrabold text-white shadow-lg shadow-indigo-200 disabled:opacity-50">
+                  {generating
+                    ? <><Loader2 className="h-4 w-4 animate-spin" />Generating...</>
+                    : <><Sparkles className="h-4 w-4" />Generate quiz and flashcards<ArrowRight className="h-4 w-4" /></>}
+                </button>
+                <p className="text-xs text-slate-400">
+                  {studyModel === 'gpt-4o-mini' ? 'Standard quality · about 40 seconds' : 'Premium quality · about 20 seconds'}
+                </p>
+              </div>
             </div>
           )}
 
           {studyMaterials && (
             <div className="mb-6 rounded-[22px] border border-green-100 bg-green-50 p-5 text-center">
-              <p className="text-sm text-green-700 font-medium mb-2">
+              <p className="text-sm text-green-700 font-medium mb-1">
                 Study materials ready
               </p>
+              {studyMaterials.model && (
+                <p className="mb-3 text-xs text-gray-400">Generated with {MODEL_NAMES[studyMaterials.model]}</p>
+              )}
               <div className="flex gap-3 justify-center">
                 <button onClick={() => setActiveTab('flashcards')} className="btn-primary text-sm py-2">
                   Study flashcards
