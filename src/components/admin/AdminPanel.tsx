@@ -94,8 +94,9 @@ export default function AdminPanel() {
       <header className="border-b border-gray-100 bg-white px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-base font-medium text-gray-900">
-              Career<span className="text-indigo-500">Mind</span>
+            <Link href="/" className="flex items-center gap-2 text-base font-medium text-gray-900">
+              <img src="/interquis-logo.png" alt="" className="h-7 w-auto" />
+              <span>Inter<span className="text-indigo-500">quis</span></span>
             </Link>
             <span className="rounded-lg bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-600">Admin</span>
           </div>

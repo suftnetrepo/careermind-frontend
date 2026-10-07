@@ -30,11 +30,12 @@ export default function Header({ rightContent }: HeaderProps) {
     <header className="border-b border-gray-100 bg-white px-6 py-4">
       <div className="max-w-5xl mx-auto flex items-center justify-between">
         <Link href="/"
-              className="text-base font-medium text-gray-900">
-          Career
+              className="flex items-center gap-2 text-base font-medium text-gray-900">
+          <img src="/interquis-logo.png" alt="" className="h-8 w-auto" />
+          <span>Inter
           <span className="text-indigo-500">
-            Mind
-          </span>
+            quis
+          </span></span>
         </Link>
 
         <div className="flex items-center gap-4">

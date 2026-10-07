@@ -64,7 +64,7 @@ const features = [
     iconClass: "bg-emerald-100 text-emerald-600",
     title: "Use any job description",
     description:
-      "Paste a vacancy and CareerMind turns its requirements into realistic, relevant questions.",
+      "Paste a vacancy and Interquis turns its requirements into realistic, relevant questions.",
   },
   {
     icon: BarChart3,
@@ -101,13 +101,11 @@ function Brand({ inverted = false }: { inverted?: boolean }) {
     <span
       className={`inline-flex items-center gap-2.5 text-[20px] font-extrabold tracking-[-0.04em] ${inverted ? "text-white" : "text-slate-950"}`}
     >
-      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-[0_8px_20px_rgba(99,102,241,.25)]">
-        <Mic className="h-[18px] w-[18px]" strokeWidth={2.5} />
-      </span>
+      <img src="/interquis-logo.png" alt="" className="h-9 w-9 object-contain" />
       <span>
-        Career
+        Inter
         <span className="bg-gradient-to-r from-indigo-500 to-violet-600 bg-clip-text text-transparent">
-          Mind
+          quis
         </span>
       </span>
     </span>
@@ -134,7 +132,7 @@ function HeroPreview() {
           <div className="relative min-h-[340px] overflow-hidden rounded-[23px] bg-slate-200 sm:min-h-[390px]">
             <Image
               src="/images/interview-candidate.png"
-              alt="Candidate practising an interview with CareerMind"
+              alt="Candidate practising an interview with Interquis"
               fill
               priority
               sizes="(max-width: 640px) 100vw, 470px"
@@ -218,7 +216,7 @@ export default function LandingPage() {
       <div className="relative bg-[radial-gradient(circle_at_82%_22%,rgba(199,210,254,.46),transparent_27%),radial-gradient(circle_at_7%_58%,rgba(224,231,255,.55),transparent_24%),linear-gradient(180deg,#ffffff_0%,#fbfcff_100%)]">
         <header className="relative z-50 px-5 sm:px-8">
           <div className="mx-auto flex h-20 max-w-7xl items-center justify-between">
-            <Link href="/" aria-label="CareerMind home">
+            <Link href="/" aria-label="Interquis home">
               <Brand />
             </Link>
             <nav
@@ -274,7 +272,7 @@ export default function LandingPage() {
                 </span>
               </h1>
               <p className="mt-7 max-w-xl text-lg leading-8 text-slate-600 sm:text-xl">
-                CareerMind creates a tailored interview for any role or job
+                Interquis creates a tailored interview for any role or job
                 description, then coaches you live with a natural voice AI.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -470,7 +468,7 @@ export default function LandingPage() {
                 One coach. Every role <span className="bg-gradient-to-r from-violet-600 to-blue-500 bg-clip-text text-transparent">you&apos;re aiming for.</span>
               </h2>
               <p className="mt-5 max-w-xl text-base leading-7 text-slate-500 sm:text-lg">
-                Bring the job description and CareerMind adapts the interview to
+                Bring the job description and Interquis adapts the interview to
                 the skills, language and expectations that matter.
               </p>
               <Link
@@ -520,7 +518,7 @@ export default function LandingPage() {
             script to memorise.”
           </blockquote>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-slate-500">
-            CareerMind gives every candidate a focused place to practise out
+            Interquis gives every candidate a focused place to practise out
             loud, reflect and improve before the interview matters.
           </p>
         </div>
@@ -750,7 +748,7 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="mx-auto mt-10 max-w-7xl border-t border-white/10 pt-6 text-xs">
-          © 2026 CareerMind · Suftnet Ltd
+          © 2026 Interquis · Suftnet Ltd
         </div>
       </footer>
     </main>

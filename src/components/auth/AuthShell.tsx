@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, Mic, ShieldCheck, Sparkles } from "lucide-react";
+import { BarChart3, ShieldCheck, Sparkles } from "lucide-react";
 
 export default function AuthShell({
   children,
@@ -18,10 +18,8 @@ export default function AuthShell({
             href="/"
             className="relative inline-flex items-center gap-2.5 text-xl font-extrabold tracking-[-.04em]"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-lg">
-              <Mic className="h-5 w-5" />
-            </span>
-            Career<span className="-ml-2.5 text-indigo-300">Mind</span>
+            <img src="/interquis-logo.png" alt="" className="h-10 w-10 object-contain" />
+            Inter<span className="-ml-2.5 text-indigo-300">quis</span>
           </Link>
           <div className="relative my-auto py-12">
            
@@ -34,7 +32,7 @@ export default function AuthShell({
             </p>
           </div>
           <p className="relative text-xs text-indigo-200/50">
-            © 2026 CareerMind · Suftnet Ltd
+            © 2026 Interquis · Suftnet Ltd
           </p>
         </aside>
         <section className="flex min-w-0 flex-1 flex-col">
@@ -43,10 +41,8 @@ export default function AuthShell({
               href="/"
               className="inline-flex items-center gap-2 text-lg font-extrabold tracking-[-.04em] text-slate-950 lg:hidden"
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white">
-                <Mic className="h-4 w-4" />
-              </span>
-              Career<span className="-ml-2 text-indigo-600">Mind</span>
+              <img src="/interquis-logo.png" alt="" className="h-9 w-9 object-contain" />
+              Inter<span className="-ml-2 text-indigo-600">quis</span>
             </Link>
             <div className="ml-auto hidden sm:block">{action}</div>
           </header>

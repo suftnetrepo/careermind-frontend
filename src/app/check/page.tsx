@@ -301,7 +301,7 @@ function MicCheck() {
       {/* Main content — shifts left on wide screens so the drawer doesn't cover it */}
       <div className={`w-full max-w-sm transition-all duration-300 ${drawerOpen ? 'md:mr-40' : ''}`}>
         <div className="mb-8 text-center">
-          <p className="text-base font-medium text-gray-900">Career<span className="text-indigo-500">Mind</span></p>
+          <p className="inline-flex items-center gap-2 text-base font-medium text-gray-900"><img src="/interquis-logo.png" alt="" className="h-7 w-auto" /><span>Inter<span className="text-indigo-500">quis</span></span></p>
           {interview && (
             <p className="mt-1 text-sm capitalize text-gray-400">
               {interview.role} · {interview.level.replace('midlevel', 'mid-level')} · {interview.duration_minutes} min
@@ -364,7 +364,7 @@ function MicCheck() {
             <StatusIcon status={checks.connection} />
           </div>
           {checks.connection === 'fail' && (
-            <p className="text-xs text-red-400">Can&apos;t reach CareerMind. Check your internet connection.</p>
+            <p className="text-xs text-red-400">Can&apos;t reach Interquis. Check your internet connection.</p>
           )}
         </div>
 

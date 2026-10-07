@@ -117,8 +117,9 @@ function Shell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <p className="text-base font-medium text-gray-900">
-            Career<span className="text-indigo-500">Mind</span>
+          <p className="inline-flex items-center gap-2 text-base font-medium text-gray-900">
+            <img src="/interquis-logo.png" alt="" className="h-7 w-auto" />
+            <span>Inter<span className="text-indigo-500">quis</span></span>
           </p>
         </div>
         <div className="card text-center">{children}</div>

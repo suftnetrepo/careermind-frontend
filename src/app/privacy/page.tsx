@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import LegalPage from '@/components/legal/LegalPage'
 
-export const metadata: Metadata = { title: 'Privacy Policy — CareerMind' }
+export const metadata: Metadata = { title: 'Privacy Policy' }
 
 export default function PrivacyPage() {
   return (
@@ -12,7 +12,7 @@ export default function PrivacyPage() {
         {
           title: 'Who we are',
           content:
-            'CareerMind is operated by Suftnet Ltd, a company registered in England and Wales. ' +
+            'Interquis is operated by Suftnet Ltd, a company registered in England and Wales. ' +
             'Suftnet Ltd is the controller of your personal data. Contact: info@suftnet.com',
         },
         {
@@ -27,7 +27,7 @@ export default function PrivacyPage() {
         {
           title: 'How we use your data',
           content:
-            'Your data is used solely to provide the CareerMind service — generating interview questions, ' +
+            'Your data is used solely to provide the Interquis service — generating interview questions, ' +
             'conducting voice interviews, producing feedback and study materials, sending account emails such as ' +
             'email confirmation, and keeping the service secure and working. We do not sell your data or use it ' +
             'to train AI models. Authorised Suftnet staff may review interview scores and feedback summaries for ' +
@@ -37,7 +37,7 @@ export default function PrivacyPage() {
         {
           title: 'Voice and CV data',
           content:
-            'Voice audio is processed in real time by OpenAI and is not stored by CareerMind. ' +
+            'Voice audio is processed in real time by OpenAI and is not stored by Interquis. ' +
             'OpenAI may retain data sent through its API for a limited period for abuse monitoring and ' +
             'does not use it to train its models. Interview transcripts are stored securely and deleted ' +
             'after 12 months. CV text is stored with the interview it was uploaded for and cleared after ' +
@@ -54,7 +54,7 @@ export default function PrivacyPage() {
         {
           title: 'Third parties',
           content:
-            'We share data only with the providers needed to run CareerMind, and only what each one needs: ' +
+            'We share data only with the providers needed to run Interquis, and only what each one needs: ' +
             'OpenAI (interview questions, voice interviews, feedback), Stripe (payments), Neon (database hosting), ' +
             'Render (application hosting), Brevo (account emails) and Sentry (error monitoring, with interview ' +
             'content removed from error reports).',

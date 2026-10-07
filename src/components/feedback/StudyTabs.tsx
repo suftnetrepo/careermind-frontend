@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { ArrowLeft, ArrowRight, BookOpen, Loader2, Mic, Sparkles } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Loader2, Sparkles } from 'lucide-react'
 import DownloadTranscriptButton from '@/components/feedback/DownloadTranscriptButton'
 import QuizTab from '@/components/interview/QuizTab'
 import FlashcardTab from '@/components/interview/FlashcardTab'
@@ -78,7 +78,7 @@ export default function StudyTabs({
       {/* Tab bar — aligned with the header content */}
       <div className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 px-5 backdrop-blur-xl sm:px-8">
         <div className="mx-auto flex min-h-20 max-w-7xl items-center gap-4">
-          <Link href="/dashboard" className="mr-2 inline-flex shrink-0 items-center gap-2.5 text-xl font-extrabold tracking-[-.04em] text-slate-950"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-200"><Mic className="h-5 w-5" /></span><span className="hidden sm:inline">Career<span className="text-indigo-600">Mind</span></span></Link>
+          <Link href="/dashboard" className="mr-2 inline-flex shrink-0 items-center gap-2.5 text-xl font-extrabold tracking-[-.04em] text-slate-950"><img src="/interquis-logo.png" alt="" className="h-10 w-10 object-contain" /><span className="hidden sm:inline">Inter<span className="text-indigo-600">quis</span></span></Link>
           <div className="flex min-w-0 flex-1 self-stretch overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {tabs.map(tab => (
             <button

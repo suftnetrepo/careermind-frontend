@@ -26,7 +26,7 @@ export default function LegalPage({ title, updated, sections }: {
         ))}
         <p className="text-sm text-gray-400 border-t border-gray-100 pt-6">
           Questions? Email <a href="mailto:info@suftnet.com" className="text-indigo-500 hover:underline">info@suftnet.com</a>
-          {' · '}<Link href="/" className="text-indigo-500 hover:underline">Back to CareerMind</Link>
+          {' · '}<Link href="/" className="text-indigo-500 hover:underline">Back to Interquis</Link>
         </p>
       </main>
     </div>

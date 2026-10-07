@@ -629,8 +629,8 @@ function InterviewRoom() {
       <header className="flex h-20 flex-shrink-0 items-center justify-between border-b border-slate-200/80 bg-white/95 px-4 backdrop-blur-xl sm:px-7">
         <div className="flex min-w-0 items-center gap-3 sm:gap-5">
           <span className="hidden items-center gap-2.5 text-xl font-extrabold tracking-[-0.04em] text-slate-950 sm:inline-flex">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-[0_8px_20px_rgba(99,102,241,.24)]"><Mic className="h-5 w-5" strokeWidth={2.5} /></span>
-            <span>Career<span className="bg-gradient-to-r from-indigo-500 to-violet-600 bg-clip-text text-transparent">Mind</span></span>
+            <img src="/interquis-logo.png" alt="" className="h-10 w-10 object-contain" />
+            <span>Inter<span className="bg-gradient-to-r from-indigo-500 to-violet-600 bg-clip-text text-transparent">quis</span></span>
           </span>
           <span className="truncate rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700 sm:px-4">
             {interview.role} · <span className="capitalize">{interview.level}</span>

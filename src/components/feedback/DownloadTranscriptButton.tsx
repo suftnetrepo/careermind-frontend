@@ -25,7 +25,7 @@ function buildReport(p: Props, fb: FeedbackReport | null) {
   const date = p.createdAt ? new Date(p.createdAt) : new Date()
 
   const header = [
-    'CareerMind Interview Transcript',
+    'Interquis Interview Transcript',
     `Role: ${p.role} · ${p.level}`,
     `Date: ${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`,
     `Duration: ${minutes} min ${seconds} sec`,
@@ -77,7 +77,7 @@ export default function DownloadTranscriptButton(props: Props) {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `careermind-interview-${props.role.toLowerCase().replace(/\s+/g, '-')}-` +
+    a.download = `interquis-interview-${props.role.toLowerCase().replace(/\s+/g, '-')}-` +
                  `${new Date().toISOString().slice(0, 10)}.txt`
     document.body.appendChild(a)
     a.click()
