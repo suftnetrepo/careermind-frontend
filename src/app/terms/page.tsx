@@ -1,7 +1,11 @@
 import type { Metadata } from 'next'
 import LegalPage from '@/components/legal/LegalPage'
 
-export const metadata: Metadata = { title: 'Terms of Service' }
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: 'The terms of use for Interquis, the AI interview practice service operated by Suftnet Ltd.',
+  alternates: { canonical: '/terms' },
+}
 
 export default function TermsPage() {
   return (

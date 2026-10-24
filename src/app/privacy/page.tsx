@@ -1,7 +1,11 @@
 import type { Metadata } from 'next'
 import LegalPage from '@/components/legal/LegalPage'
 
-export const metadata: Metadata = { title: 'Privacy Policy' }
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description: 'How Interquis collects, uses and protects your personal data, including interview audio, transcripts and payments.',
+  alternates: { canonical: '/privacy' },
+}
 
 export default function PrivacyPage() {
   return (

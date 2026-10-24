@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { FAQS, landingJsonLd } from "@/lib/seo";
 import {
   ArrowRight,
   BarChart3,
@@ -210,9 +212,17 @@ function HeroPreview() {
   );
 }
 
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
+
 export default function LandingPage() {
   return (
     <main className="overflow-hidden bg-white text-slate-950">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(landingJsonLd()).replace(/</g, "\\u003c") }}
+      />
       <div className="relative bg-[radial-gradient(circle_at_82%_22%,rgba(199,210,254,.46),transparent_27%),radial-gradient(circle_at_7%_58%,rgba(224,231,255,.55),transparent_24%),linear-gradient(180deg,#ffffff_0%,#fbfcff_100%)]">
         <header className="relative z-50 px-5 sm:px-8">
           <div className="mx-auto flex h-20 max-w-7xl items-center justify-between">
@@ -669,6 +679,30 @@ export default function LandingPage() {
             <CreditCard className="h-4 w-4" />
             Pay once per session · No subscription · First interview free
           </p>
+        </div>
+      </section>
+
+      <section id="faq" className="scroll-mt-20 px-5 py-20 sm:px-8 lg:py-24">
+        <div className="mx-auto max-w-3xl">
+          <div className="text-center">
+            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-indigo-600">
+              FAQ
+            </p>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-slate-950 sm:text-5xl">
+              Interview practice, answered
+            </h2>
+          </div>
+          <div className="mt-10 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
+            {FAQS.map(({ q, a }) => (
+              <details key={q} className="group px-6 py-5">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-bold text-slate-900">
+                  {q}
+                  <span className="text-xl text-indigo-500 transition group-open:rotate-45">+</span>
+                </summary>
+                <p className="mt-3 text-sm leading-7 text-slate-600">{a}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 
